@@ -3,6 +3,7 @@ import express from 'express';
 import { env } from '../config/env.js';
 import authRoutes from './authRoutes.js';
 import clientRoutes from './clientRoutes.js';
+import branchRoutes from './branchRoutes.js';
 
 const router = express.Router();
 
@@ -24,9 +25,9 @@ router.get('/health', (_req, res) => {
 // ════════════════════════════════════════
 router.use('/auth', authRoutes);
 router.use('/clients', clientRoutes);
+router.use('/branches', branchRoutes);
 
 // ── Future phases ───────────────────────
-// router.use('/branches',      branchRoutes);
 // router.use('/vehicles',      vehicleRoutes);
 // router.use('/drivers',       driverRoutes);
 // router.use('/deliveries',    deliveryRoutes);
