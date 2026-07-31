@@ -20,9 +20,11 @@ export const env = Object.freeze({
   // ── MongoDB ───────────────────────────
   MONGO_URI: process.env.MONGO_URI || 'mongodb://localhost:27017/fleethub',
 
-  // ── JWT (placeholders – used in later phases) ─
+  // ── JWT ────────────────────────────────
   JWT_SECRET: process.env.JWT_SECRET || 'dev-secret-change-in-production',
-  JWT_EXPIRE: process.env.JWT_EXPIRE || '7d',
+  JWT_EXPIRE: process.env.JWT_EXPIRE || '15m',
+  JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET || 'dev-refresh-secret-change-in-production',
+  JWT_REFRESH_EXPIRE: process.env.JWT_REFRESH_EXPIRE || '7d',
   JWT_COOKIE_EXPIRE: parseInt(process.env.JWT_COOKIE_EXPIRE, 10) || 7,
 
   // ── Email (placeholders – used in later phases) ─

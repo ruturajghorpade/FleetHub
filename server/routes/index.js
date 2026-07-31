@@ -1,6 +1,7 @@
 // FleetHub – API Routes Index (v1)
 import express from 'express';
 import { env } from '../config/env.js';
+import authRoutes from './authRoutes.js';
 
 const router = express.Router();
 
@@ -18,9 +19,11 @@ router.get('/health', (_req, res) => {
 });
 
 // ════════════════════════════════════════
-// Module routes (will be added in future phases)
+// Module Routes
 // ════════════════════════════════════════
-// router.use('/auth',          authRoutes);
+router.use('/auth', authRoutes);
+
+// ── Future phases ───────────────────────
 // router.use('/users',         userRoutes);
 // router.use('/clients',       clientRoutes);
 // router.use('/branches',      branchRoutes);
@@ -36,3 +39,4 @@ router.get('/health', (_req, res) => {
 // router.use('/documents',     documentRoutes);
 
 export default router;
+

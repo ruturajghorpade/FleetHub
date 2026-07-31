@@ -2,11 +2,10 @@
 
 export const ROLES = {
   SUPER_ADMIN: 'super_admin',
-  ADMIN: 'admin',
-  MANAGER: 'manager',
+  CLIENT_ADMIN: 'client_admin',
+  BRANCH_MANAGER: 'branch_manager',
   DISPATCHER: 'dispatcher',
   DRIVER: 'driver',
-  VIEWER: 'viewer',
 };
 
 export const STATUSES = {
