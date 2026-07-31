@@ -2,6 +2,7 @@
 import express from 'express';
 import { env } from '../config/env.js';
 import authRoutes from './authRoutes.js';
+import clientRoutes from './clientRoutes.js';
 
 const router = express.Router();
 
@@ -22,10 +23,9 @@ router.get('/health', (_req, res) => {
 // Module Routes
 // ════════════════════════════════════════
 router.use('/auth', authRoutes);
+router.use('/clients', clientRoutes);
 
 // ── Future phases ───────────────────────
-// router.use('/users',         userRoutes);
-// router.use('/clients',       clientRoutes);
 // router.use('/branches',      branchRoutes);
 // router.use('/vehicles',      vehicleRoutes);
 // router.use('/drivers',       driverRoutes);
