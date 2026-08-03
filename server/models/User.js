@@ -79,6 +79,19 @@ const userSchema = new mongoose.Schema(
       select: false, // Never returned in queries by default
       default: null,
     },
+
+    // ── Soft Delete ─────────────────────────
+    isDeleted: {
+      type: Boolean,
+      default: false,
+      select: false,
+    },
+
+    deletedAt: {
+      type: Date,
+      default: null,
+      select: false,
+    },
   },
   {
     timestamps: true,
@@ -88,6 +101,8 @@ const userSchema = new mongoose.Schema(
         delete ret.password;
         delete ret.refreshToken;
         delete ret.__v;
+        delete ret.isDeleted;
+        delete ret.deletedAt;
         return ret;
       },
     },
@@ -100,6 +115,25 @@ const userSchema = new mongoose.Schema(
 userSchema.index({ client: 1 });
 userSchema.index({ branch: 1 });
 userSchema.index({ role: 1 });
+userSchema.index({ email: 1 }, { unique: true });
+userSchema.index({ isActive: 1 });
+
+// ════════════════════════════════════════
+// Query Middleware – Auto-exclude soft-deleted
+// ════════════════════════════════════════
+userSchema.pre(/^find/, function (next) {
+  if (this.getFilter().isDeleted === undefined) {
+    this.where({ isDeleted: { $ne: true } });
+  }
+  next();
+});
+
+userSchema.pre('countDocuments', function (next) {
+  if (this.getFilter().isDeleted === undefined) {
+    this.where({ isDeleted: { $ne: true } });
+  }
+  next();
+});
 
 // ════════════════════════════════════════
 // Pre-save Hook – Hash password

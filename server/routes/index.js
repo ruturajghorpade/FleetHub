@@ -4,6 +4,7 @@ import { env } from '../config/env.js';
 import authRoutes from './authRoutes.js';
 import clientRoutes from './clientRoutes.js';
 import branchRoutes from './branchRoutes.js';
+import userRoutes from './userRoutes.js';
 
 const router = express.Router();
 
@@ -26,6 +27,7 @@ router.get('/health', (_req, res) => {
 router.use('/auth', authRoutes);
 router.use('/clients', clientRoutes);
 router.use('/branches', branchRoutes);
+router.use('/users', userRoutes);
 
 // ── Future phases ───────────────────────
 // router.use('/vehicles',      vehicleRoutes);
