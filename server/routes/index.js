@@ -5,6 +5,7 @@ import authRoutes from './authRoutes.js';
 import clientRoutes from './clientRoutes.js';
 import branchRoutes from './branchRoutes.js';
 import userRoutes from './userRoutes.js';
+import vehicleRoutes from './vehicleRoutes.js';
 
 const router = express.Router();
 
@@ -28,9 +29,9 @@ router.use('/auth', authRoutes);
 router.use('/clients', clientRoutes);
 router.use('/branches', branchRoutes);
 router.use('/users', userRoutes);
+router.use('/vehicles', vehicleRoutes);
 
 // ── Future phases ───────────────────────
-// router.use('/vehicles',      vehicleRoutes);
 // router.use('/drivers',       driverRoutes);
 // router.use('/deliveries',    deliveryRoutes);
 // router.use('/routes',        routeRoutes);

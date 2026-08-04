@@ -29,15 +29,26 @@ export const DELIVERY_STATUSES = {
 };
 
 export const VEHICLE_TYPES = {
-  TWO_WHEELER: 'two_wheeler',
-  THREE_WHEELER: 'three_wheeler',
-  MINI_TRUCK: 'mini_truck',
-  LCV: 'lcv',
   TRUCK: 'truck',
-  TRAILER: 'trailer',
-  REFRIGERATED: 'refrigerated',
-  TANKER: 'tanker',
+  MINI_TRUCK: 'mini_truck',
+  PICKUP: 'pickup',
   VAN: 'van',
+  TEMPO: 'tempo',
+  TRAILER: 'trailer',
+};
+
+export const FUEL_TYPES = {
+  DIESEL: 'diesel',
+  PETROL: 'petrol',
+  CNG: 'cng',
+  ELECTRIC: 'electric',
+};
+
+export const VEHICLE_STATUSES = {
+  AVAILABLE: 'available',
+  IN_TRANSIT: 'in_transit',
+  MAINTENANCE: 'maintenance',
+  INACTIVE: 'inactive',
 };
 
 export const MAINTENANCE_TYPES = {
