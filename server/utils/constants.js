@@ -65,3 +65,38 @@ export const MAINTENANCE_TYPES = {
   ELECTRICAL: 'electrical',
   AC_SERVICE: 'ac_service',
 };
+
+export const DRIVER_STATUSES = {
+  AVAILABLE: 'available',
+  ON_DUTY: 'on_duty',
+  ON_LEAVE: 'on_leave',
+  INACTIVE: 'inactive',
+  SUSPENDED: 'suspended',
+};
+
+export const GENDERS = {
+  MALE: 'male',
+  FEMALE: 'female',
+  OTHER: 'other',
+};
+
+export const BLOOD_GROUPS = {
+  A_POS: 'A+',
+  A_NEG: 'A-',
+  B_POS: 'B+',
+  B_NEG: 'B-',
+  AB_POS: 'AB+',
+  AB_NEG: 'AB-',
+  O_POS: 'O+',
+  O_NEG: 'O-',
+};
+
+export const LICENSE_TYPES = {
+  LMV: 'LMV',
+  HMV: 'HMV',
+  HGMV: 'HGMV',
+  TRANS: 'TRANS',
+  LMV_TRANS: 'LMV-TRANS',
+  HMV_TRANS: 'HMV-TRANS',
+};
+
