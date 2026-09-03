@@ -8,9 +8,9 @@ export const STATUSES = {
 };
 
 export const STATUS_COLORS = {
-  [STATUSES.ACTIVE]: { bg: 'bg-green-100', text: 'text-green-700', dot: 'bg-green-500' },
-  [STATUSES.INACTIVE]: { bg: 'bg-gray-100', text: 'text-gray-600', dot: 'bg-gray-400' },
-  [STATUSES.PENDING]: { bg: 'bg-amber-100', text: 'text-amber-700', dot: 'bg-amber-500' },
-  [STATUSES.SUSPENDED]: { bg: 'bg-red-100', text: 'text-red-700', dot: 'bg-red-500' },
-  [STATUSES.ARCHIVED]: { bg: 'bg-slate-100', text: 'text-slate-600', dot: 'bg-slate-400' },
+  [STATUSES.ACTIVE]: { bg: 'bg-green-50 dark:bg-green-500/15', text: 'text-green-700 dark:text-green-400', dot: 'bg-green-500' },
+  [STATUSES.INACTIVE]: { bg: 'bg-slate-100 dark:bg-slate-800', text: 'text-slate-600 dark:text-slate-400', dot: 'bg-slate-400' },
+  [STATUSES.PENDING]: { bg: 'bg-amber-50 dark:bg-amber-500/15', text: 'text-amber-700 dark:text-amber-400', dot: 'bg-amber-500' },
+  [STATUSES.SUSPENDED]: { bg: 'bg-red-50 dark:bg-red-500/15', text: 'text-red-700 dark:text-red-400', dot: 'bg-red-500' },
+  [STATUSES.ARCHIVED]: { bg: 'bg-slate-100 dark:bg-slate-800', text: 'text-slate-600 dark:text-slate-400', dot: 'bg-slate-400' },
 };

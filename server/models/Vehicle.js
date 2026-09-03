@@ -31,10 +31,14 @@ const vehicleSchema = new mongoose.Schema(
     vehicleType: {
       type: String,
       enum: {
-        values: Object.values(VEHICLE_TYPES),
+        values: [
+          'BIKE', 'SCOOTER', 'EV_BIKE',
+          'bike', 'scooter', 'ev_bike',
+          ...Object.values(VEHICLE_TYPES),
+        ],
         message: '{VALUE} is not a valid vehicle type',
       },
-      default: null,
+      default: 'BIKE',
     },
 
     brand: {
@@ -151,6 +155,16 @@ const vehicleSchema = new mongoose.Schema(
         message: '{VALUE} is not a valid vehicle status',
       },
       default: VEHICLE_STATUSES.AVAILABLE,
+    },
+
+    availability: {
+      type: String,
+      enum: {
+        values: ['AVAILABLE', 'ON_DELIVERY', 'MAINTENANCE', 'available', 'on_delivery', 'maintenance'],
+        message: '{VALUE} is not a valid vehicle availability',
+      },
+      default: 'AVAILABLE',
+      set: (v) => (v ? v.toUpperCase() : v),
     },
 
     // ── Assignment ─────────────────────────

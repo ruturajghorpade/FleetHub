@@ -1,32 +1,70 @@
 // FleetHub – Application Router
+import { Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import MainLayout from '@/components/layout/MainLayout';
-import NotFoundPage from '@/pages/errors/NotFoundPage';
+import AuthLayout from '@/components/layout/AuthLayout';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
+import Loader from '@/components/common/Loader';
+import PrivateRoute from './PrivateRoute';
+import { appRoutes, authRoutes, errorRoutes } from './routes';
 
 const AppRouter = () => {
   return (
     <ErrorBoundary>
-      <Routes>
-        {/* Main layout wrapper */}
-        <Route element={<MainLayout />}>
-          {/* Dashboard placeholder */}
+      <Suspense fallback={<Loader message="Loading page..." />}>
+        <Routes>
+          {/* Authenticated routes with MainLayout */}
           <Route
-            index
             element={
-              <div className="animate-fade-in">
-                <h1 className="page-title mb-2">Dashboard</h1>
-                <p className="text-dark-500 dark:text-dark-400">
-                  Welcome to FleetHub. Dashboard will be built in a future phase.
-                </p>
-              </div>
+              <PrivateRoute>
+                <MainLayout />
+              </PrivateRoute>
             }
-          />
-        </Route>
+          >
+            {appRoutes.map((route) => (
+              <Route
+                key={route.path}
+                path={route.path}
+                index={route.path === '/'}
+                element={<route.element />}
+              />
+            ))}
+          </Route>
 
-        {/* 404 – Outside layout */}
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
+          {/* Auth routes (login, etc.) */}
+          <Route element={<AuthLayout />}>
+            {authRoutes
+              .filter((r) => r.layout === 'auth')
+              .map((route) => (
+                <Route
+                  key={route.path}
+                  path={route.path}
+                  element={<route.element />}
+                />
+              ))}
+          </Route>
+
+          {/* Standalone routes (no layout) */}
+          {authRoutes
+            .filter((r) => r.layout === 'none')
+            .map((route) => (
+              <Route
+                key={route.path}
+                path={route.path}
+                element={<route.element />}
+              />
+            ))}
+
+          {/* Error routes */}
+          {errorRoutes.map((route) => (
+            <Route
+              key={route.path}
+              path={route.path}
+              element={<route.element />}
+            />
+          ))}
+        </Routes>
+      </Suspense>
     </ErrorBoundary>
   );
 };

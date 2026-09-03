@@ -7,6 +7,8 @@ import branchRoutes from './branchRoutes.js';
 import userRoutes from './userRoutes.js';
 import vehicleRoutes from './vehicleRoutes.js';
 import driverRoutes from './driverRoutes.js';
+import deliveryRoutes from './deliveryRoutes.js';
+import reportRoutes from './reportRoutes.js';
 
 const router = express.Router();
 
@@ -16,7 +18,7 @@ const router = express.Router();
 router.get('/health', (_req, res) => {
   res.status(200).json({
     success: true,
-    message: 'FleetHub API is running',
+    message: 'FleetHub API is running – Food Delivery Logistics Edition',
     version: 'v1',
     environment: env.NODE_ENV,
     timestamp: new Date().toISOString(),
@@ -32,16 +34,7 @@ router.use('/branches', branchRoutes);
 router.use('/users', userRoutes);
 router.use('/vehicles', vehicleRoutes);
 router.use('/drivers', driverRoutes);
-
-// ── Future phases ───────────────────────
-// router.use('/deliveries',    deliveryRoutes);
-// router.use('/routes',        routeRoutes);
-// router.use('/maintenance',   maintenanceRoutes);
-// router.use('/reports',       reportRoutes);
-// router.use('/notifications', notificationRoutes);
-// router.use('/settings',      settingsRoutes);
-// router.use('/dashboard',     dashboardRoutes);
-// router.use('/documents',     documentRoutes);
+router.use('/deliveries', deliveryRoutes);
+router.use('/reports', reportRoutes);
 
 export default router;
-

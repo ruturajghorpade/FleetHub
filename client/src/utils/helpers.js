@@ -44,7 +44,7 @@ export const truncate = (str, maxLength = 50) => {
  * Generate a random color from a string (for avatar backgrounds)
  */
 export const stringToColor = (str) => {
-  if (!str) return '#6366f1';
+  if (!str) return '#0F6B7A';
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     hash = str.charCodeAt(i) + ((hash << 5) - hash);

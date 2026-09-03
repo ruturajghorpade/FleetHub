@@ -218,6 +218,16 @@ const driverSchema = new mongoose.Schema(
       default: DRIVER_STATUSES.AVAILABLE,
     },
 
+    availability: {
+      type: String,
+      enum: {
+        values: ['AVAILABLE', 'BUSY', 'OFFLINE', 'available', 'busy', 'offline'],
+        message: '{VALUE} is not a valid driver availability',
+      },
+      default: 'AVAILABLE',
+      set: (v) => (v ? v.toUpperCase() : v),
+    },
+
     rating: {
       type: Number,
       min: [0, 'Rating cannot be negative'],

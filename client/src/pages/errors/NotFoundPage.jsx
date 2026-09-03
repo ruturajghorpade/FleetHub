@@ -1,50 +1,49 @@
 // FleetHub – 404 Not Found Page
-import { Link } from 'react-router-dom';
-import { HiOutlineHome, HiOutlineArrowLeft } from 'react-icons/hi2';
+import { useNavigate } from 'react-router-dom';
+import { HiOutlineMapPin, HiOutlineHome, HiOutlineArrowLeft } from 'react-icons/hi2';
+import Button from '@/components/common/Button';
 
 const NotFoundPage = () => {
+  const navigate = useNavigate();
+
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-dark-950 p-6">
-      <div className="text-center max-w-lg animate-fade-in">
-        {/* Large 404 */}
-        <div className="relative mb-8">
-          <h1 className="text-[10rem] md:text-[12rem] font-extrabold leading-none select-none text-gradient opacity-30">
-            404
-          </h1>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-24 h-24 rounded-3xl flex items-center justify-center"
-                 style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>
-              <svg className="w-12 h-12 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="11" cy="11" r="8" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                <line x1="8" y1="11" x2="14" y2="11" />
-              </svg>
-            </div>
-          </div>
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 p-6">
+      <div className="text-center max-w-md animate-fade-in">
+        {/* Illustration */}
+        <div className="mx-auto w-16 h-16 rounded-2xl bg-primary-50 dark:bg-primary-950/40 border border-primary-200/50 dark:border-primary-800/40 flex items-center justify-center mb-6">
+          <HiOutlineMapPin className="w-8 h-8 text-primary-600 dark:text-primary-400" />
         </div>
 
-        {/* Message */}
-        <h2 className="text-2xl md:text-3xl font-bold text-dark-900 dark:text-dark-100 mb-3">
+        {/* Error code */}
+        <p className="text-7xl font-black text-gradient mb-4 tracking-tight">404</p>
+
+        {/* Title */}
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100 mb-3">
           Page Not Found
-        </h2>
-        <p className="text-dark-500 dark:text-dark-400 mb-8 max-w-md mx-auto">
-          The page you're looking for doesn't exist or has been moved.
-          Let's get you back on track.
+        </h1>
+
+        {/* Description */}
+        <p className="text-slate-500 dark:text-slate-400 mb-8 leading-relaxed text-sm">
+          The requested route does not exist or has been relocated.
+          Please return to the main dashboard.
         </p>
 
         {/* Actions */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-          <Link to="/" className="btn-primary w-full sm:w-auto">
-            <HiOutlineHome className="w-4 h-4" />
-            Go to Dashboard
-          </Link>
-          <button
-            onClick={() => window.history.back()}
-            className="btn-secondary w-full sm:w-auto"
+        <div className="flex items-center justify-center gap-3">
+          <Button
+            variant="secondary"
+            icon={HiOutlineArrowLeft}
+            onClick={() => navigate(-1)}
           >
-            <HiOutlineArrowLeft className="w-4 h-4" />
             Go Back
-          </button>
+          </Button>
+          <Button
+            variant="primary"
+            icon={HiOutlineHome}
+            onClick={() => navigate('/')}
+          >
+            Dashboard
+          </Button>
         </div>
       </div>
     </div>

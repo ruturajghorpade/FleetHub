@@ -1,25 +1,21 @@
-// FleetHub – Main Layout (Sidebar + Navbar + Content + Footer)
+// FleetHub – Main Layout (Sidebar + MobileSidebar + Header + Content + Footer)
 import { Outlet } from 'react-router-dom';
 import Header from './Header';
 import Sidebar from './Sidebar';
+import MobileSidebar from './MobileSidebar';
 import Footer from './Footer';
 import { useSidebar } from '@/context/SidebarContext';
 
 const MainLayout = () => {
-  const { collapsed, mobileOpen, closeMobileSidebar } = useSidebar();
+  const { collapsed } = useSidebar();
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-dark-950">
-      {/* Sidebar */}
+    <div className="flex h-screen overflow-hidden bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+      {/* Desktop Sidebar */}
       <Sidebar />
 
-      {/* Mobile overlay */}
-      {mobileOpen && (
-        <div
-          className="fixed inset-0 z-30 bg-black/50 backdrop-blur-sm lg:hidden transition-opacity"
-          onClick={closeMobileSidebar}
-        />
-      )}
+      {/* Mobile Sidebar (overlay drawer) */}
+      <MobileSidebar />
 
       {/* Main content area */}
       <div

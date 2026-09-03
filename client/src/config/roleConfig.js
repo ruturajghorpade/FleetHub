@@ -1,30 +1,24 @@
-// FleetHub Role Configuration
+// FleetHub Role Configuration (Food Delivery Logistics)
 
 const ROLES = {
   SUPER_ADMIN: 'super_admin',
-  ADMIN: 'admin',
-  MANAGER: 'manager',
+  CLIENT_ADMIN: 'client_admin',
   DISPATCHER: 'dispatcher',
   DRIVER: 'driver',
-  VIEWER: 'viewer',
 };
 
 const ROLE_LABELS = {
-  [ROLES.SUPER_ADMIN]: 'Super Admin',
-  [ROLES.ADMIN]: 'Admin',
-  [ROLES.MANAGER]: 'Manager',
-  [ROLES.DISPATCHER]: 'Dispatcher',
-  [ROLES.DRIVER]: 'Driver',
-  [ROLES.VIEWER]: 'Viewer',
+  [ROLES.SUPER_ADMIN]: 'Super Admin (FastFleet HQ)',
+  [ROLES.CLIENT_ADMIN]: "Client Admin (Domino's Pizza)",
+  [ROLES.DISPATCHER]: 'Dispatcher (Central Ops)',
+  [ROLES.DRIVER]: 'Driver (Delivery Partner)',
 };
 
 const ROLE_HIERARCHY = [
   ROLES.SUPER_ADMIN,
-  ROLES.ADMIN,
-  ROLES.MANAGER,
   ROLES.DISPATCHER,
+  ROLES.CLIENT_ADMIN,
   ROLES.DRIVER,
-  ROLES.VIEWER,
 ];
 
 export { ROLES, ROLE_LABELS, ROLE_HIERARCHY };

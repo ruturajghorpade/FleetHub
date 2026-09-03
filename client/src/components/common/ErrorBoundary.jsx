@@ -24,18 +24,18 @@ class ErrorBoundary extends Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-dark-950 p-6">
+        <div className="flex items-center justify-center min-h-screen bg-slate-50 dark:bg-slate-950 p-6">
           <div className="text-center max-w-md">
             {/* Icon */}
-            <div className="mx-auto w-16 h-16 rounded-2xl bg-red-50 dark:bg-red-500/10 flex items-center justify-center mb-6">
+            <div className="mx-auto w-16 h-16 rounded-2xl bg-red-50 dark:bg-red-500/10 border border-red-200/50 dark:border-red-500/20 flex items-center justify-center mb-6">
               <HiOutlineExclamationTriangle className="w-8 h-8 text-red-500" />
             </div>
 
             {/* Message */}
-            <h1 className="text-2xl font-bold text-dark-900 dark:text-dark-100 mb-2">
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">
               Something went wrong
             </h1>
-            <p className="text-dark-500 dark:text-dark-400 mb-6">
+            <p className="text-slate-500 dark:text-slate-400 mb-6 text-sm">
               An unexpected error occurred. Please try refreshing the page.
             </p>
 

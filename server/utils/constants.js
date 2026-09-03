@@ -1,9 +1,8 @@
-// FleetHub – Server-Side Constants
+// FleetHub – Server-Side Constants (Food Delivery Logistics)
 
 export const ROLES = {
   SUPER_ADMIN: 'super_admin',
   CLIENT_ADMIN: 'client_admin',
-  BRANCH_MANAGER: 'branch_manager',
   DISPATCHER: 'dispatcher',
   DRIVER: 'driver',
 };
@@ -20,28 +19,46 @@ export const DELIVERY_STATUSES = {
   PENDING: 'pending',
   ASSIGNED: 'assigned',
   PICKED_UP: 'picked_up',
-  IN_TRANSIT: 'in_transit',
   OUT_FOR_DELIVERY: 'out_for_delivery',
   DELIVERED: 'delivered',
-  FAILED: 'failed',
-  RETURNED: 'returned',
   CANCELLED: 'cancelled',
 };
 
+// Food delivery fleet types
 export const VEHICLE_TYPES = {
+  BIKE: 'bike',
+  SCOOTER: 'scooter',
+  EV_BIKE: 'ev_bike',
+  // Legacy / backup vehicle types
   TRUCK: 'truck',
   MINI_TRUCK: 'mini_truck',
-  PICKUP: 'pickup',
   VAN: 'van',
-  TEMPO: 'tempo',
-  TRAILER: 'trailer',
+};
+
+export const VEHICLE_AVAILABILITY = {
+  AVAILABLE: 'available',
+  ON_DELIVERY: 'on_delivery',
+  MAINTENANCE: 'maintenance',
+};
+
+export const DRIVER_AVAILABILITY = {
+  AVAILABLE: 'available',
+  BUSY: 'busy',
+  OFFLINE: 'offline',
+};
+
+export const CLIENT_BUSINESS_TYPES = {
+  RESTAURANT: 'restaurant',
+  CAFE: 'cafe',
+  FAST_FOOD: 'fast_food',
+  BAKERY: 'bakery',
 };
 
 export const FUEL_TYPES = {
-  DIESEL: 'diesel',
   PETROL: 'petrol',
-  CNG: 'cng',
   ELECTRIC: 'electric',
+  DIESEL: 'diesel',
+  CNG: 'cng',
 };
 
 export const VEHICLE_STATUSES = {
@@ -93,10 +110,8 @@ export const BLOOD_GROUPS = {
 
 export const LICENSE_TYPES = {
   LMV: 'LMV',
+  MCWG: 'MCWG',
+  MCWOG: 'MCWOG',
   HMV: 'HMV',
-  HGMV: 'HGMV',
   TRANS: 'TRANS',
-  LMV_TRANS: 'LMV-TRANS',
-  HMV_TRANS: 'HMV-TRANS',
 };
-

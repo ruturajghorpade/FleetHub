@@ -99,6 +99,16 @@ const clientSchema = new mongoose.Schema(
       default: STATUSES.ACTIVE,
     },
 
+    businessType: {
+      type: String,
+      enum: {
+        values: ['RESTAURANT', 'CAFE', 'FAST_FOOD', 'BAKERY', 'restaurant', 'cafe', 'fast_food', 'bakery'],
+        message: '{VALUE} is not a valid business type',
+      },
+      default: 'RESTAURANT',
+      set: (v) => (v ? v.toUpperCase() : v),
+    },
+
     // ── Subscription Details ────────────────
     subscriptionPlan: {
       type: String,
