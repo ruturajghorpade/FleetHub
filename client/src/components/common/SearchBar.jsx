@@ -51,11 +51,11 @@ const SearchBar = ({
         value={internalValue}
         onChange={handleChange}
         placeholder={placeholder}
-        className="w-full pl-9 pr-9 py-2 rounded-lg border border-slate-300 dark:border-slate-700
-                   bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-sm
+        className="w-full pl-9 pr-9 py-2 rounded-lg border border-[#D4D4D4] dark:border-[#404040]
+                   bg-white dark:bg-[#1A1A1A] text-[#171717] dark:text-[#FAFAFA] text-sm
                    placeholder:text-slate-400 dark:placeholder:text-slate-500
                    transition-all duration-200
-                   focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
+                   focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
       />
       {internalValue && (
         <button

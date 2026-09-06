@@ -12,7 +12,7 @@ const RecentDeliveries = () => {
           <Card.Title>Recent Deliveries</Card.Title>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Active assignments and recent shipments</p>
         </div>
-        <button className="flex items-center gap-1.5 text-xs font-semibold text-primary-600 dark:text-secondary-400 hover:text-primary-700 dark:hover:text-secondary-300 transition-colors">
+        <button className="flex items-center gap-1.5 text-xs font-semibold text-amber-500 hover:text-amber-400 transition-colors">
           View all
           <HiOutlineArrowRight className="w-3.5 h-3.5" />
         </button>
@@ -22,7 +22,7 @@ const RecentDeliveries = () => {
       <div className="overflow-x-auto">
         <table className="w-full text-sm text-left">
           <thead>
-            <tr className="border-y border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/60">
+            <tr className="border-y border-slate-200 dark:border-[#2E2E2E] bg-slate-50/80 dark:bg-[#1A1A1A]">
               <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                 Tracking ID
               </th>
@@ -40,14 +40,14 @@ const RecentDeliveries = () => {
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+          <tbody className="divide-y divide-slate-100 dark:divide-[#2E2E2E]">
             {MOCK_DELIVERIES.map((delivery) => (
               <tr
                 key={delivery._id}
-                className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors cursor-pointer group"
+                className="hover:bg-slate-50/70 dark:hover:bg-[#1A1A1A]/60 transition-colors cursor-pointer group"
               >
                 <td className="px-5 py-3.5">
-                  <span className="font-semibold text-slate-900 dark:text-slate-100 font-mono text-xs group-hover:text-primary-600 dark:group-hover:text-secondary-400 transition-colors">
+                  <span className="font-semibold text-slate-900 dark:text-slate-100 font-mono text-xs group-hover:text-amber-500 transition-colors">
                     {delivery.trackingId}
                   </span>
                 </td>

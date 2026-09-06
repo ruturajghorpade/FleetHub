@@ -11,7 +11,7 @@ const StatusBadge = ({ status, type = 'general', className = '' }) => {
 
   if (!colors) {
     return (
-      <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700 ${className}`}>
+      <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 dark:bg-[#1A1A1A] dark:text-slate-300 border border-slate-200 dark:border-[#2E2E2E] ${className}`}>
         {toTitleCase(status || 'Unknown')}
       </span>
     );

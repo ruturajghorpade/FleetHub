@@ -27,12 +27,12 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="card p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-card">
+    <div className="card p-8 rounded-2xl border border-[#E5E5E5] dark:border-[#2E2E2E] shadow-card bg-white dark:bg-[#111111]">
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-[#FAFAFA] tracking-tight">
           Welcome back
         </h2>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+        <p className="mt-1 text-sm text-slate-500 dark:text-[#A3A3A3]">
           Sign in to your FleetHub management portal
         </p>
       </div>
@@ -63,7 +63,7 @@ const LoginPage = () => {
             <label htmlFor="login-password" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
               Password
             </label>
-            <span className="text-xs text-primary-600 dark:text-secondary-400 hover:underline cursor-pointer">
+            <span className="text-xs text-amber-500 hover:text-amber-400 hover:underline cursor-pointer font-medium">
               Forgot password?
             </span>
           </div>
@@ -85,7 +85,7 @@ const LoginPage = () => {
         <Button
           type="submit"
           variant="primary"
-          className="w-full py-2.5"
+          className="w-full py-2.5 font-bold"
           loading={loading}
         >
           Sign in to Dashboard
@@ -93,8 +93,8 @@ const LoginPage = () => {
       </form>
 
       {/* Demo notice */}
-      <div className="mt-6 p-3 rounded-lg bg-primary-50/70 dark:bg-primary-950/30 border border-primary-200/60 dark:border-primary-800/40">
-        <p className="text-xs text-primary-800 dark:text-primary-300 text-center">
+      <div className="mt-6 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-center">
+        <p className="text-xs text-amber-700 dark:text-amber-400">
           <span className="font-semibold">Demo Sandbox:</span> Click "Sign in to Dashboard" to log in with prefilled credentials
         </p>
       </div>

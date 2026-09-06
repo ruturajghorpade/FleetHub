@@ -41,7 +41,7 @@ const Pagination = ({
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="p-1.5 rounded-lg border border-neutral-200 dark:border-[#2E2E2E] text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#242424] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           aria-label="Previous page"
         >
           <HiOutlineChevronLeft className="w-4 h-4" />
@@ -61,10 +61,10 @@ const Pagination = ({
               key={p}
               onClick={() => onPageChange(p)}
               className={`
-                min-w-[32px] h-8 px-2 rounded-lg font-medium text-xs transition-colors
+                min-w-[32px] h-8 px-2 rounded-lg font-bold text-xs transition-colors
                 ${active
-                  ? 'bg-primary-600 text-white'
-                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  ? 'bg-amber-500 text-black shadow-sm'
+                  : 'text-slate-600 dark:text-[#FAFAFA] hover:bg-slate-100 dark:hover:bg-[#242424]'
                 }
               `}
             >
@@ -76,7 +76,7 @@ const Pagination = ({
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="p-1.5 rounded-lg border border-neutral-200 dark:border-[#2E2E2E] text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#242424] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           aria-label="Next page"
         >
           <HiOutlineChevronRight className="w-4 h-4" />

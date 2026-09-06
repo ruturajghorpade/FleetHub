@@ -2,8 +2,8 @@
 // Semantic badges with soft tinted backgrounds, subtle borders, and dark mode support.
 
 const BADGE_VARIANTS = {
-  primary: 'bg-primary-50 text-primary-700 dark:bg-primary-500/15 dark:text-primary-300 border border-primary-200/60 dark:border-primary-500/20',
-  secondary: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700',
+  primary: 'bg-amber-50 text-amber-800 dark:bg-amber-500/15 dark:text-amber-400 border border-amber-200/80 dark:border-amber-500/30',
+  secondary: 'bg-slate-100 text-slate-700 dark:bg-[#1A1A1A] dark:text-slate-300 border border-slate-200 dark:border-[#2E2E2E]',
   success: 'bg-green-50 text-green-700 dark:bg-green-500/15 dark:text-green-400 border border-green-200/60 dark:border-green-500/20',
   warning: 'bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400 border border-amber-200/60 dark:border-amber-500/20',
   danger: 'bg-red-50 text-red-700 dark:bg-red-500/15 dark:text-red-400 border border-red-200/60 dark:border-red-500/20',

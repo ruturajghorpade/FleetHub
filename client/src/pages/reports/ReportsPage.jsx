@@ -55,7 +55,7 @@ const ReportsPage = () => {
       </PageHeader>
 
       {/* Report Tabs */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 border-b border-slate-200 dark:border-slate-800">
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 border-b border-slate-200 dark:border-[#2E2E2E]">
         {REPORT_TABS.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -65,8 +65,8 @@ const ReportsPage = () => {
               onClick={() => setActiveTab(tab.id)}
               className={`px-3.5 py-2.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all flex items-center gap-2 ${
                 isActive
-                  ? 'bg-primary-600 text-white shadow-sm'
-                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  ? 'bg-amber-500 text-black font-bold shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1A1A1A]'
               }`}
             >
               <Icon className="w-4 h-4" />
@@ -92,7 +92,7 @@ const ReportsPage = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
               <thead>
-                <tr className="border-y border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
+                <tr className="border-y border-slate-200 dark:border-[#2E2E2E] bg-slate-50 dark:bg-[#1A1A1A]">
                   <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500">Date</th>
                   <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500 text-center">Total Orders</th>
                   <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500 text-center">Delivered</th>
@@ -102,9 +102,9 @@ const ReportsPage = () => {
                   <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500 text-right">Revenue</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+              <tbody className="divide-y divide-slate-100 dark:divide-[#2E2E2E]">
                 {DAILY_STATS.map((row) => (
-                  <tr key={row.date} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40">
+                  <tr key={row.date} className="hover:bg-slate-50/70 dark:hover:bg-[#1A1A1A]/60">
                     <td className="px-5 py-3 font-semibold text-xs text-slate-900 dark:text-slate-100">
                       {row.date}
                     </td>
@@ -149,7 +149,7 @@ const ReportsPage = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
               <thead>
-                <tr className="border-y border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
+                <tr className="border-y border-slate-200 dark:border-[#2E2E2E] bg-slate-50 dark:bg-[#1A1A1A]">
                   <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500">Restaurant Name</th>
                   <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500 text-center">Today Orders</th>
                   <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500 text-center">On-Time SLA</th>
@@ -157,9 +157,9 @@ const ReportsPage = () => {
                   <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500 text-center">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+              <tbody className="divide-y divide-slate-100 dark:divide-[#2E2E2E]">
                 {RESTAURANT_ORDERS_DATA.map((row) => (
-                  <tr key={row.name} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40">
+                  <tr key={row.name} className="hover:bg-slate-50/70 dark:hover:bg-[#1A1A1A]/60">
                     <td className="px-5 py-3 font-semibold text-xs text-slate-900 dark:text-slate-100">
                       {row.name}
                     </td>
@@ -198,7 +198,7 @@ const ReportsPage = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
               <thead>
-                <tr className="border-y border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
+                <tr className="border-y border-slate-200 dark:border-[#2E2E2E] bg-slate-50 dark:bg-[#1A1A1A]">
                   <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500">Partner Name</th>
                   <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500 text-center">Completed Deliveries</th>
                   <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500 text-center">Avg Trip Time</th>
@@ -206,9 +206,9 @@ const ReportsPage = () => {
                   <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500 text-right">Today Earnings</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+              <tbody className="divide-y divide-slate-100 dark:divide-[#2E2E2E]">
                 {DRIVER_PERFORMANCE_DATA.map((row) => (
-                  <tr key={row.name} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40">
+                  <tr key={row.name} className="hover:bg-slate-50/70 dark:hover:bg-[#1A1A1A]/60">
                     <td className="px-5 py-3 font-semibold text-xs text-slate-900 dark:text-slate-100">
                       {row.name}
                     </td>
@@ -245,7 +245,7 @@ const ReportsPage = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
               <thead>
-                <tr className="border-y border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
+                <tr className="border-y border-slate-200 dark:border-[#2E2E2E] bg-slate-50 dark:bg-[#1A1A1A]">
                   <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500">Reg Number</th>
                   <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500">Vehicle Model</th>
                   <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500">Category</th>
@@ -254,9 +254,9 @@ const ReportsPage = () => {
                   <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500 text-right">Odometer</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+              <tbody className="divide-y divide-slate-100 dark:divide-[#2E2E2E]">
                 {MOCK_VEHICLES.map((v) => (
-                  <tr key={v._id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40">
+                  <tr key={v._id} className="hover:bg-slate-50/70 dark:hover:bg-[#1A1A1A]/60">
                     <td className="px-5 py-3 font-mono font-bold text-xs text-slate-900 dark:text-slate-100">
                       {v.vehicleNumber}
                     </td>
@@ -272,7 +272,7 @@ const ReportsPage = () => {
                           v.availability === 'AVAILABLE'
                             ? 'bg-green-100 dark:bg-green-950/60 text-green-700 dark:text-green-300'
                             : v.availability === 'ON_DELIVERY'
-                            ? 'bg-primary-100 dark:bg-primary-950/60 text-primary-700 dark:text-primary-300'
+                            ? 'bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300'
                             : 'bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300'
                         }`}
                       >
@@ -315,7 +315,7 @@ const ReportsPage = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
               <thead>
-                <tr className="border-y border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
+                <tr className="border-y border-slate-200 dark:border-[#2E2E2E] bg-slate-50 dark:bg-[#1A1A1A]">
                   <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500">Order ID</th>
                   <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500">Restaurant</th>
                   <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500">Customer</th>
@@ -324,9 +324,9 @@ const ReportsPage = () => {
                   <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500 text-right">Timestamp</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+              <tbody className="divide-y divide-slate-100 dark:divide-[#2E2E2E]">
                 {cancelledOrders.map((row) => (
-                  <tr key={row._id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40">
+                  <tr key={row._id} className="hover:bg-slate-50/70 dark:hover:bg-[#1A1A1A]/60">
                     <td className="px-5 py-3 font-mono font-bold text-xs text-red-600 dark:text-red-400">
                       {row.orderId}
                     </td>

@@ -7,11 +7,11 @@ const NotFoundPage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 p-6">
+    <div className="min-h-screen flex items-center justify-center bg-neutral-100 dark:bg-[#090909] p-6">
       <div className="text-center max-w-md animate-fade-in">
         {/* Illustration */}
-        <div className="mx-auto w-16 h-16 rounded-2xl bg-primary-50 dark:bg-primary-950/40 border border-primary-200/50 dark:border-primary-800/40 flex items-center justify-center mb-6">
-          <HiOutlineMapPin className="w-8 h-8 text-primary-600 dark:text-primary-400" />
+        <div className="mx-auto w-16 h-16 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200/50 dark:border-amber-500/20 flex items-center justify-center mb-6">
+          <HiOutlineMapPin className="w-8 h-8 text-amber-500" />
         </div>
 
         {/* Error code */}

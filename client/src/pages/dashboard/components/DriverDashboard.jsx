@@ -93,42 +93,43 @@ const DriverDashboard = () => {
       )}
 
       {/* Driver Identity Card & Vehicle Badge */}
-      <div className="bg-gradient-to-r from-primary-700 via-primary-600 to-teal-600 rounded-xl p-5 text-white shadow-card flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white dark:bg-[#111111] border border-slate-200 dark:border-[#2E2E2E] rounded-xl p-5 text-slate-900 dark:text-white shadow-card flex flex-col md:flex-row md:items-center justify-between gap-4 relative overflow-hidden">
+        <div className="h-1 bg-amber-500 absolute top-0 left-0 right-0" />
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="px-2.5 py-0.5 rounded-full bg-white/20 text-2xs font-bold uppercase tracking-wider">
+            <span className="px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-2xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
               Delivery Partner
             </span>
-            <span className="inline-flex items-center gap-1 text-xs text-amber-300 font-bold">
+            <span className="inline-flex items-center gap-1 text-xs text-amber-500 font-bold">
               ★ 4.8 Rating
             </span>
           </div>
-          <h1 className="text-xl font-bold">{driverName}</h1>
-          <p className="text-xs text-primary-100 mt-0.5">
+          <h1 className="text-xl font-bold text-slate-900 dark:text-white">{driverName}</h1>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
             Shift: Active & Available • Central Dispatch Hub
           </p>
         </div>
 
         {/* Assigned Vehicle Details */}
-        <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg px-4 py-2.5 text-right flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-white/20">
-            <HiOutlineTruck className="w-5 h-5 text-teal-200" />
+        <div className="bg-slate-50 dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#2E2E2E] rounded-lg px-4 py-2.5 text-right flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-amber-500/10 text-amber-500 border border-amber-500/20">
+            <HiOutlineTruck className="w-5 h-5 text-amber-500" />
           </div>
           <div className="text-left">
-            <p className="text-2xs uppercase tracking-wider text-teal-200 font-bold">
+            <p className="text-2xs uppercase tracking-wider text-amber-600 dark:text-amber-400 font-bold">
               Assigned Fleet Vehicle
             </p>
-            <p className="text-sm font-mono font-bold">{assignedBike}</p>
-            <p className="text-2xs text-primary-100">{bikeModel}</p>
+            <p className="text-sm font-mono font-bold text-slate-900 dark:text-white">{assignedBike}</p>
+            <p className="text-2xs text-slate-500 dark:text-slate-400">{bikeModel}</p>
           </div>
         </div>
       </div>
 
       {/* Partner KPIs */}
       <section className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-card border border-slate-200 dark:border-slate-800 p-4">
+        <div className="bg-white dark:bg-[#111111] rounded-xl shadow-card border border-slate-200 dark:border-[#2E2E2E] p-4 relative overflow-hidden">
           <div className="flex items-center justify-between mb-2">
-            <div className="p-2.5 rounded-lg bg-primary-50 dark:bg-primary-950/40 text-primary-600 dark:text-primary-400">
+            <div className="p-2.5 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
               <HiOutlineTruck className="w-5 h-5" />
             </div>
             <Badge variant="primary" size="sm">Active</Badge>
@@ -137,9 +138,9 @@ const DriverDashboard = () => {
           <p className="text-xs text-slate-500 dark:text-slate-400">Current Assigned Trips</p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-card border border-slate-200 dark:border-slate-800 p-4">
+        <div className="bg-white dark:bg-[#111111] rounded-xl shadow-card border border-slate-200 dark:border-[#2E2E2E] p-4 relative overflow-hidden">
           <div className="flex items-center justify-between mb-2">
-            <div className="p-2.5 rounded-lg bg-green-50 dark:bg-green-950/40 text-green-600 dark:text-green-400">
+            <div className="p-2.5 rounded-lg bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/20">
               <HiOutlineCheckCircle className="w-5 h-5" />
             </div>
             <Badge variant="success" size="sm">Done</Badge>
@@ -148,12 +149,12 @@ const DriverDashboard = () => {
           <p className="text-xs text-slate-500 dark:text-slate-400">Today's Completed</p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-card border border-slate-200 dark:border-slate-800 p-4">
+        <div className="bg-white dark:bg-[#111111] rounded-xl shadow-card border border-slate-200 dark:border-[#2E2E2E] p-4 relative overflow-hidden">
           <div className="flex items-center justify-between mb-2">
-            <div className="p-2.5 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400">
+            <div className="p-2.5 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
               <HiOutlineCurrencyRupee className="w-5 h-5" />
             </div>
-            <span className="text-2xs font-semibold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300">
+            <span className="text-2xs font-semibold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
               ₹70/trip
             </span>
           </div>
@@ -163,9 +164,9 @@ const DriverDashboard = () => {
           <p className="text-xs text-slate-500 dark:text-slate-400">Today's Payout</p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-card border border-slate-200 dark:border-slate-800 p-4">
+        <div className="bg-white dark:bg-[#111111] rounded-xl shadow-card border border-slate-200 dark:border-[#2E2E2E] p-4 relative overflow-hidden">
           <div className="flex items-center justify-between mb-2">
-            <div className="p-2.5 rounded-lg bg-cyan-50 dark:bg-cyan-950/40 text-cyan-600 dark:text-cyan-400">
+            <div className="p-2.5 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
               <HiOutlineClock className="w-5 h-5" />
             </div>
             <Badge variant="info" size="sm">Avg Speed</Badge>
@@ -176,8 +177,8 @@ const DriverDashboard = () => {
       </section>
 
       {/* Active Assigned Deliveries (with Action Buttons) */}
-      <Card padding="p-0" className="overflow-hidden border-2 border-primary-500 shadow-md">
-        <div className="px-5 py-4 bg-primary-50 dark:bg-primary-950/30 border-b border-primary-200 dark:border-primary-900/40 flex items-center justify-between">
+      <Card padding="p-0" className="overflow-hidden border-2 border-amber-500/60 shadow-md">
+        <div className="px-5 py-4 bg-amber-500/5 dark:bg-amber-500/10 border-b border-amber-500/20 flex items-center justify-between">
           <div>
             <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">
               Your Current Assigned Deliveries
@@ -202,16 +203,16 @@ const DriverDashboard = () => {
             </p>
           </div>
         ) : (
-          <div className="divide-y divide-slate-200 dark:divide-slate-800">
+          <div className="divide-y divide-slate-200 dark:divide-[#2E2E2E]">
             {activeDeliveries.map((delivery) => (
               <div key={delivery._id} className="p-5 space-y-4">
                 {/* Header bar of delivery card */}
-                <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
+                <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100 dark:border-[#2E2E2E]">
                   <div className="flex items-center gap-3">
-                    <span className="font-mono text-base font-bold text-slate-900 dark:text-slate-100 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-lg">
+                    <span className="font-mono text-base font-bold text-slate-900 dark:text-slate-100 bg-slate-100 dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#2E2E2E] px-3 py-1 rounded-lg">
                       {delivery.orderId}
                     </span>
-                    <span className="text-xs font-bold px-3 py-1 rounded-full bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300">
+                    <span className="text-xs font-bold px-3 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
                       {delivery.client}
                     </span>
                   </div>
@@ -224,7 +225,7 @@ const DriverDashboard = () => {
                 </div>
 
                 {/* Pickup & Dropoff Routing Details */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 dark:bg-slate-800/60 p-4 rounded-xl text-xs">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#2E2E2E] p-4 rounded-xl text-xs">
                   {/* Pickup */}
                   <div className="space-y-1">
                     <p className="text-2xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 flex items-center gap-1">
@@ -266,13 +267,13 @@ const DriverDashboard = () => {
                 </div>
 
                 {/* Driver Action Progression Buttons */}
-                <div className="flex flex-wrap items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                <div className="flex flex-wrap items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-[#2E2E2E]">
                   {delivery.status === 'assigned' && (
                     <>
                       <Button
                         variant="primary"
                         size="sm"
-                        className="bg-amber-600 hover:bg-amber-700 text-white font-bold"
+                        className="bg-amber-500 hover:bg-amber-600 text-black font-bold shadow-sm"
                         onClick={() => handleStatusChange(delivery._id, 'picked_up')}
                       >
                         ✓ Picked Up From Restaurant
@@ -284,7 +285,7 @@ const DriverDashboard = () => {
                     <Button
                       variant="primary"
                       size="sm"
-                      className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold"
+                      className="bg-blue-600 hover:bg-blue-700 text-white font-bold"
                       onClick={() => handleStatusChange(delivery._id, 'out_for_delivery')}
                     >
                       🛵 Start Ride (Out For Delivery)
@@ -322,7 +323,7 @@ const DriverDashboard = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
             <thead>
-              <tr className="border-y border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
+              <tr className="border-y border-slate-200 dark:border-[#2E2E2E] bg-slate-50 dark:bg-[#1A1A1A]">
                 <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500">Order</th>
                 <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500">Restaurant</th>
                 <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500">Customer</th>
@@ -330,9 +331,9 @@ const DriverDashboard = () => {
                 <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500 text-right">Payout</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+            <tbody className="divide-y divide-slate-100 dark:divide-[#2E2E2E]">
               {completedDeliveries.map((d) => (
-                <tr key={d._id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40">
+                <tr key={d._id} className="hover:bg-slate-50/70 dark:hover:bg-[#1A1A1A]/60">
                   <td className="px-5 py-3 font-mono font-bold text-xs text-slate-900 dark:text-slate-100">
                     {d.orderId}
                   </td>

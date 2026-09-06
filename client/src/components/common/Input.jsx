@@ -42,7 +42,7 @@ const Input = forwardRef(({
           disabled={disabled}
           className={`
             w-full py-2 rounded-lg border text-sm
-            bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100
+            bg-white dark:bg-[#1A1A1A] text-[#171717] dark:text-[#FAFAFA]
             placeholder:text-slate-400 dark:placeholder:text-slate-500
             transition-all duration-200
             focus:outline-none focus:ring-2
@@ -51,7 +51,7 @@ const Input = forwardRef(({
             ${Icon && iconPosition === 'right' ? 'pr-9' : 'pr-3.5'}
             ${error
               ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500'
-              : 'border-slate-300 dark:border-slate-700 focus:ring-primary-500/20 focus:border-primary-500'
+              : 'border-[#D4D4D4] dark:border-[#404040] focus:ring-amber-500/20 focus:border-amber-500'
             }
             ${className}
           `}

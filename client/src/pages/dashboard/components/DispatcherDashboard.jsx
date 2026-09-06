@@ -189,80 +189,84 @@ const DispatcherDashboard = () => {
 
       {/* Dispatch Overview KPIs */}
       <section className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-card border border-slate-200 dark:border-slate-800 p-4">
+        <div className="bg-white dark:bg-[#111111] rounded-xl shadow-sm border border-neutral-200 dark:border-[#2E2E2E] p-4 relative overflow-hidden group hover:border-amber-500/50 transition-all">
+          <div className="absolute top-0 left-0 right-0 h-0.5 bg-amber-500/80" />
           <div className="flex items-center justify-between mb-2">
-            <div className="p-2.5 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400">
+            <div className="p-2.5 rounded-lg bg-amber-500/10 text-amber-500 border border-amber-500/20">
               <HiOutlineClock className="w-5 h-5" />
             </div>
-            <span className="text-2xs font-bold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300">
+            <span className="text-2xs font-bold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-400 border border-amber-500/30">
               Action Required
             </span>
           </div>
-          <p className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+          <p className="text-2xl font-bold text-slate-900 dark:text-[#FAFAFA]">
             {pendingDeliveries.length}
           </p>
-          <p className="text-xs text-slate-500 dark:text-slate-400">Pending Assignment</p>
+          <p className="text-xs text-slate-500 dark:text-[#A3A3A3]">Pending Assignment</p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-card border border-slate-200 dark:border-slate-800 p-4">
+        <div className="bg-white dark:bg-[#111111] rounded-xl shadow-sm border border-neutral-200 dark:border-[#2E2E2E] p-4 relative overflow-hidden group hover:border-amber-500/50 transition-all">
+          <div className="absolute top-0 left-0 right-0 h-0.5 bg-amber-500/80" />
           <div className="flex items-center justify-between mb-2">
-            <div className="p-2.5 rounded-lg bg-cyan-50 dark:bg-cyan-950/40 text-cyan-600 dark:text-cyan-400">
+            <div className="p-2.5 rounded-lg bg-blue-500/10 text-blue-500 border border-blue-500/20">
               <HiOutlineCheckCircle className="w-5 h-5" />
             </div>
-            <span className="text-2xs font-bold px-2 py-0.5 rounded-full bg-cyan-100 dark:bg-cyan-900/40 text-cyan-700 dark:text-cyan-300">
+            <span className="text-2xs font-bold px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-500/20 text-blue-800 dark:text-blue-400 border border-blue-500/30">
               In Transit
             </span>
           </div>
-          <p className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+          <p className="text-2xl font-bold text-slate-900 dark:text-[#FAFAFA]">
             {activeAssignedDeliveries.length}
           </p>
-          <p className="text-xs text-slate-500 dark:text-slate-400">Active Deliveries</p>
+          <p className="text-xs text-slate-500 dark:text-[#A3A3A3]">Active Deliveries</p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-card border border-slate-200 dark:border-slate-800 p-4">
+        <div className="bg-white dark:bg-[#111111] rounded-xl shadow-sm border border-neutral-200 dark:border-[#2E2E2E] p-4 relative overflow-hidden group hover:border-amber-500/50 transition-all">
+          <div className="absolute top-0 left-0 right-0 h-0.5 bg-amber-500/80" />
           <div className="flex items-center justify-between mb-2">
-            <div className="p-2.5 rounded-lg bg-green-50 dark:bg-green-950/40 text-green-600 dark:text-green-400">
+            <div className="p-2.5 rounded-lg bg-green-500/10 text-green-500 border border-green-500/20">
               <HiOutlineUserGroup className="w-5 h-5" />
             </div>
-            <span className="text-2xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+            <span className="text-2xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-[#1A1A1A] text-slate-600 dark:text-[#A3A3A3] border border-slate-200 dark:border-[#2E2E2E]">
               {drivers.length} total
             </span>
           </div>
           <p className="text-2xl font-bold text-green-600 dark:text-green-400">
             {availableDrivers.length}
           </p>
-          <p className="text-xs text-slate-500 dark:text-slate-400">Available Riders</p>
+          <p className="text-xs text-slate-500 dark:text-[#A3A3A3]">Available Riders</p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-card border border-slate-200 dark:border-slate-800 p-4">
+        <div className="bg-white dark:bg-[#111111] rounded-xl shadow-sm border border-neutral-200 dark:border-[#2E2E2E] p-4 relative overflow-hidden group hover:border-amber-500/50 transition-all">
+          <div className="absolute top-0 left-0 right-0 h-0.5 bg-amber-500/80" />
           <div className="flex items-center justify-between mb-2">
-            <div className="p-2.5 rounded-lg bg-primary-50 dark:bg-primary-950/40 text-primary-600 dark:text-primary-400">
+            <div className="p-2.5 rounded-lg bg-amber-500/10 text-amber-500 border border-amber-500/20">
               <HiOutlineTruck className="w-5 h-5" />
             </div>
-            <span className="text-2xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+            <span className="text-2xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-[#1A1A1A] text-slate-600 dark:text-[#A3A3A3] border border-slate-200 dark:border-[#2E2E2E]">
               {vehicles.length} total
             </span>
           </div>
-          <p className="text-2xl font-bold text-primary-600 dark:text-primary-400">
+          <p className="text-2xl font-bold text-slate-900 dark:text-[#FAFAFA]">
             {availableVehicles.length}
           </p>
-          <p className="text-xs text-slate-500 dark:text-slate-400">Available Bikes / EVs</p>
+          <p className="text-xs text-slate-500 dark:text-[#A3A3A3]">Available Bikes / EVs</p>
         </div>
       </section>
 
       {/* Pending Delivery Requests (Dispatcher Assignment Hub) */}
-      <Card padding="p-0" className="overflow-hidden border-2 border-amber-300 dark:border-amber-900/60 shadow-lg">
-        <div className="px-5 py-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/20 border-b border-amber-200 dark:border-amber-900/40 flex items-center justify-between">
+      <Card padding="p-0" className="overflow-hidden border border-[#2E2E2E] shadow-md">
+        <div className="px-5 py-4 bg-[#1A1A1A] border-b border-[#2E2E2E] flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <span className="relative flex h-3 w-3">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
             </span>
             <div>
-              <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">
+              <h2 className="text-base font-bold text-white">
                 Live Pending Requests Queue
               </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
+              <p className="text-xs text-[#A3A3A3]">
                 Fresh restaurant delivery requests waiting for rider assignment
               </p>
             </div>
@@ -273,28 +277,28 @@ const DispatcherDashboard = () => {
         </div>
 
         {pendingDeliveries.length === 0 ? (
-          <div className="p-8 text-center text-slate-500 dark:text-slate-400">
+          <div className="p-8 text-center text-slate-500 dark:text-[#A3A3A3]">
             <HiOutlineCheckCircle className="w-10 h-10 text-green-500 mx-auto mb-2" />
             <p className="font-semibold text-slate-800 dark:text-slate-200">
               All delivery requests are assigned!
             </p>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-[#A3A3A3] mt-0.5">
               New requests from Domino's, KFC, and restaurants will appear here automatically.
             </p>
           </div>
         ) : (
-          <div className="divide-y divide-slate-200 dark:divide-slate-800">
+          <div className="divide-y divide-[#E5E5E5] dark:divide-[#2E2E2E] bg-white dark:bg-[#111111]">
             {pendingDeliveries.map((delivery) => (
               <div
                 key={delivery._id}
-                className="p-4 md:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                className="p-4 md:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-[#FFFBEB] dark:hover:bg-[#1A1A1A] transition-colors"
               >
                 <div className="space-y-1.5 flex-1">
                   <div className="flex items-center gap-2.5 flex-wrap">
-                    <span className="font-mono text-sm font-bold text-slate-900 dark:text-slate-100 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">
+                    <span className="font-mono text-sm font-bold text-slate-900 dark:text-[#FAFAFA] bg-slate-100 dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#2E2E2E] px-2 py-0.5 rounded">
                       {delivery.orderId}
                     </span>
-                    <span className="text-xs font-semibold text-primary-600 dark:text-secondary-400 bg-primary-50 dark:bg-primary-950/40 px-2.5 py-0.5 rounded-full">
+                    <span className="text-xs font-semibold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/15 border border-amber-200/60 dark:border-amber-500/30 px-2.5 py-0.5 rounded-full">
                       {delivery.client}
                     </span>
                     <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
@@ -317,7 +321,7 @@ const DispatcherDashboard = () => {
                     </div>
                   </div>
 
-                  <p className="text-2xs text-slate-500 dark:text-slate-400 italic">
+                  <p className="text-2xs text-slate-500 dark:text-[#A3A3A3] italic">
                     Items: {delivery.items}
                   </p>
                 </div>
@@ -326,10 +330,10 @@ const DispatcherDashboard = () => {
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <button
                     onClick={() => handleAutoAssign(delivery._id)}
-                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white text-xs font-bold shadow-sm transition-all hover:shadow"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 active:scale-[0.98] text-black text-xs font-bold shadow-sm transition-all hover:shadow"
                     title="Automatically find available driver and bike"
                   >
-                    <HiOutlineBolt className="w-4 h-4 text-amber-300" />
+                    <HiOutlineBolt className="w-4 h-4 text-black" />
                     Auto Assign
                   </button>
                   <Button
@@ -365,7 +369,7 @@ const DispatcherDashboard = () => {
 
           <div className="overflow-x-auto max-h-[340px]">
             <table className="w-full text-sm text-left">
-              <thead className="sticky top-0 bg-slate-50 dark:bg-slate-900 border-y border-slate-200 dark:border-slate-800">
+              <thead className="sticky top-0 bg-slate-50 dark:bg-[#1A1A1A] border-y border-slate-200 dark:border-[#2E2E2E]">
                 <tr>
                   <th className="px-4 py-2.5 text-xs font-semibold uppercase text-slate-500">Rider</th>
                   <th className="px-4 py-2.5 text-xs font-semibold uppercase text-slate-500">Phone</th>
@@ -373,9 +377,9 @@ const DispatcherDashboard = () => {
                   <th className="px-4 py-2.5 text-xs font-semibold uppercase text-slate-500">Assigned Bike</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+              <tbody className="divide-y divide-slate-100 dark:divide-[#2E2E2E]">
                 {drivers.map((d) => (
-                  <tr key={d._id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40">
+                  <tr key={d._id} className="hover:bg-slate-50/70 dark:hover:bg-[#1A1A1A]/60">
                     <td className="px-4 py-2.5 font-semibold text-slate-800 dark:text-slate-200 text-xs">
                       {d.name}
                       <span className="block text-2xs text-amber-500 font-bold">★ {d.rating}</span>
@@ -390,7 +394,7 @@ const DispatcherDashboard = () => {
                             ? 'bg-green-100 dark:bg-green-950/60 text-green-700 dark:text-green-300'
                             : d.availability === 'BUSY'
                             ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300'
-                            : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
+                            : 'bg-slate-100 dark:bg-[#1A1A1A] text-slate-500'
                         }`}
                       >
                         {d.availability}
@@ -422,7 +426,7 @@ const DispatcherDashboard = () => {
 
           <div className="overflow-x-auto max-h-[340px]">
             <table className="w-full text-sm text-left">
-              <thead className="sticky top-0 bg-slate-50 dark:bg-slate-900 border-y border-slate-200 dark:border-slate-800">
+              <thead className="sticky top-0 bg-slate-50 dark:bg-[#1A1A1A] border-y border-slate-200 dark:border-[#2E2E2E]">
                 <tr>
                   <th className="px-4 py-2.5 text-xs font-semibold uppercase text-slate-500">Reg No</th>
                   <th className="px-4 py-2.5 text-xs font-semibold uppercase text-slate-500">Model</th>
@@ -430,9 +434,9 @@ const DispatcherDashboard = () => {
                   <th className="px-4 py-2.5 text-xs font-semibold uppercase text-slate-500 text-center">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+              <tbody className="divide-y divide-slate-100 dark:divide-[#2E2E2E]">
                 {vehicles.map((v) => (
-                  <tr key={v._id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40">
+                  <tr key={v._id} className="hover:bg-slate-50/70 dark:hover:bg-[#1A1A1A]/60">
                     <td className="px-4 py-2.5 font-mono font-bold text-slate-900 dark:text-slate-100 text-xs">
                       {v.vehicleNumber}
                     </td>
@@ -448,7 +452,7 @@ const DispatcherDashboard = () => {
                           v.availability === 'AVAILABLE'
                             ? 'bg-green-100 dark:bg-green-950/60 text-green-700 dark:text-green-300'
                             : v.availability === 'ON_DELIVERY'
-                            ? 'bg-primary-100 dark:bg-primary-950/60 text-primary-700 dark:text-primary-300'
+                            ? 'bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300'
                             : 'bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300'
                         }`}
                       >
@@ -477,7 +481,7 @@ const DispatcherDashboard = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
             <thead>
-              <tr className="border-y border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
+              <tr className="border-y border-slate-200 dark:border-[#2E2E2E] bg-slate-50 dark:bg-[#1A1A1A]">
                 <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500">Order ID</th>
                 <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500">Restaurant</th>
                 <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500">Customer & Destination</th>
@@ -486,9 +490,9 @@ const DispatcherDashboard = () => {
                 <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500 text-right">ETA</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+            <tbody className="divide-y divide-slate-100 dark:divide-[#2E2E2E]">
               {activeAssignedDeliveries.map((d) => (
-                <tr key={d._id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40">
+                <tr key={d._id} className="hover:bg-slate-50/70 dark:hover:bg-[#1A1A1A]/60">
                   <td className="px-5 py-3 font-mono font-bold text-slate-900 dark:text-slate-100 text-xs">
                     {d.orderId}
                   </td>
@@ -525,7 +529,7 @@ const DispatcherDashboard = () => {
           size="md"
         >
           <div className="space-y-4">
-            <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800 text-xs space-y-1">
+            <div className="p-3 rounded-lg bg-slate-50 dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#2E2E2E] text-xs space-y-1">
               <p>
                 <span className="text-slate-400 font-medium">Restaurant: </span>
                 <span className="font-bold text-slate-900 dark:text-slate-100">
@@ -553,7 +557,7 @@ const DispatcherDashboard = () => {
               <select
                 value={selectedDriverId}
                 onChange={(e) => setSelectedDriverId(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-sm outline-none focus:border-primary-500"
+                className="w-full px-3 py-2 rounded-lg bg-white dark:bg-[#1A1A1A] border border-slate-300 dark:border-[#404040] text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
               >
                 {availableDrivers.length === 0 ? (
                   <option value="">No available drivers</option>
@@ -574,7 +578,7 @@ const DispatcherDashboard = () => {
               <select
                 value={selectedVehicleId}
                 onChange={(e) => setSelectedVehicleId(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-sm outline-none focus:border-primary-500"
+                className="w-full px-3 py-2 rounded-lg bg-white dark:bg-[#1A1A1A] border border-slate-300 dark:border-[#404040] text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
               >
                 {availableVehicles.length === 0 ? (
                   <option value="">No available vehicles</option>

@@ -36,13 +36,13 @@ const Select = forwardRef(({
           disabled={disabled}
           className={`
             w-full pl-3.5 pr-10 py-2 rounded-lg border text-sm appearance-none
-            bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100
+            bg-white dark:bg-[#1A1A1A] text-[#171717] dark:text-[#FAFAFA]
             transition-all duration-200
             focus:outline-none focus:ring-2
             disabled:opacity-50 disabled:cursor-not-allowed
             ${error
               ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500'
-              : 'border-slate-300 dark:border-slate-700 focus:ring-primary-500/20 focus:border-primary-500'
+              : 'border-[#D4D4D4] dark:border-[#404040] focus:ring-amber-500/20 focus:border-amber-500'
             }
             ${className}
           `}

@@ -269,7 +269,7 @@ const DeliveryListPage = () => {
       </PageHeader>
 
       {/* Status Filter Tabs */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 border-b border-slate-200 dark:border-slate-800">
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 border-b border-slate-200 dark:border-[#2E2E2E]">
         {STATUS_TABS.map((tab) => {
           const isActive = selectedStatusTab === tab.id;
           const count =
@@ -283,16 +283,16 @@ const DeliveryListPage = () => {
               onClick={() => setSelectedStatusTab(tab.id)}
               className={`px-3.5 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition-colors flex items-center gap-2 ${
                 isActive
-                  ? 'bg-primary-600 text-white shadow-sm'
-                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  ? 'bg-amber-500 text-black font-bold shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1A1A1A]'
               }`}
             >
               <span>{tab.label}</span>
               <span
                 className={`px-1.5 py-0.2 rounded-full text-2xs ${
                   isActive
-                    ? 'bg-white/20 text-white'
-                    : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
+                    ? 'bg-black/20 text-black font-bold'
+                    : 'bg-slate-200 dark:bg-[#242424] text-slate-700 dark:text-slate-300'
                 }`}
               >
                 {count}
@@ -303,7 +303,7 @@ const DeliveryListPage = () => {
       </div>
 
       {/* Search & Restaurant Filter Controls */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-card">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white dark:bg-[#111111] p-3 rounded-xl border border-slate-200 dark:border-[#2E2E2E] shadow-card">
         <div className="relative w-full sm:w-80">
           <HiOutlineMagnifyingGlass className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
@@ -311,7 +311,7 @@ const DeliveryListPage = () => {
             placeholder="Search order ID, customer, phone..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3 py-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs outline-none focus:border-primary-500"
+            className="w-full pl-9 pr-3 py-1.5 rounded-lg bg-slate-50 dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#404040] text-xs text-slate-900 dark:text-slate-100 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
           />
         </div>
 
@@ -324,7 +324,7 @@ const DeliveryListPage = () => {
             <select
               value={selectedClient}
               onChange={(e) => setSelectedClient(e.target.value)}
-              className="px-3 py-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium outline-none focus:border-primary-500 text-slate-800 dark:text-slate-200"
+              className="px-3 py-1.5 rounded-lg bg-slate-50 dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#404040] text-xs font-medium outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-slate-800 dark:text-slate-200"
             >
               <option value="all">All Restaurants</option>
               {MOCK_CLIENTS.map((c) => (
@@ -342,7 +342,7 @@ const DeliveryListPage = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
             <thead>
-              <tr className="border-y border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
+              <tr className="border-y border-slate-200 dark:border-[#2E2E2E] bg-slate-50 dark:bg-[#1A1A1A]">
                 <th className="px-5 py-3 text-xs font-semibold uppercase text-slate-500">Order ID</th>
                 <th className="px-5 py-3 text-xs font-semibold uppercase text-slate-500">Restaurant</th>
                 <th className="px-5 py-3 text-xs font-semibold uppercase text-slate-500">Customer & Items</th>
@@ -352,7 +352,7 @@ const DeliveryListPage = () => {
                 <th className="px-5 py-3 text-xs font-semibold uppercase text-slate-500 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+            <tbody className="divide-y divide-slate-100 dark:divide-[#2E2E2E]">
               {filteredDeliveries.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-5 py-10 text-center text-slate-400 text-xs">
@@ -370,7 +370,7 @@ const DeliveryListPage = () => {
                   return (
                     <tr
                       key={delivery._id}
-                      className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors"
+                      className="hover:bg-slate-50/70 dark:hover:bg-[#1A1A1A]/60 transition-colors"
                     >
                       <td className="px-5 py-3.5 font-mono text-xs font-bold text-slate-900 dark:text-slate-100">
                         {delivery.orderId}
@@ -378,7 +378,7 @@ const DeliveryListPage = () => {
                           ₹{delivery.totalAmount}
                         </span>
                       </td>
-                      <td className="px-5 py-3.5 text-xs font-semibold text-primary-700 dark:text-primary-300">
+                      <td className="px-5 py-3.5 text-xs font-semibold text-amber-600 dark:text-amber-400">
                         {delivery.client}
                       </td>
                       <td className="px-5 py-3.5 text-xs">
@@ -421,10 +421,10 @@ const DeliveryListPage = () => {
                           {canAutoAssign && (
                             <button
                               onClick={() => handleAutoAssign(delivery._id)}
-                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-primary-600 hover:bg-primary-700 text-white text-2xs font-bold transition-all"
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-amber-500 hover:bg-amber-600 text-black text-2xs font-bold transition-all shadow-sm"
                               title="Auto-Assign Available Rider & Bike"
                             >
-                              <HiOutlineBolt className="w-3.5 h-3.5 text-amber-300" />
+                              <HiOutlineBolt className="w-3.5 h-3.5 text-black" />
                               Auto Assign
                             </button>
                           )}
@@ -437,14 +437,14 @@ const DeliveryListPage = () => {
                             }}
                             title="Track Timeline"
                           >
-                            <HiOutlineEye className="w-4 h-4 text-primary-600" />
+                            <HiOutlineEye className="w-4 h-4 text-amber-500" />
                             Track
                           </Button>
                           {canCancel && (
                             <Button
                               variant="ghost"
                               size="xs"
-                              className="text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40"
+                              className="text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40"
                               onClick={() => openCancel(delivery)}
                               title="Cancel Order"
                             >
@@ -478,7 +478,7 @@ const DeliveryListPage = () => {
             <select
               value={newOrder.client}
               onChange={(e) => setNewOrder({ ...newOrder, client: e.target.value })}
-              className="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-sm outline-none focus:border-primary-500"
+              className="w-full px-3 py-2 rounded-lg bg-white dark:bg-[#1A1A1A] border border-slate-300 dark:border-[#404040] text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
             >
               {MOCK_CLIENTS.map((c) => (
                 <option key={c._id} value={c.companyName}>
@@ -499,7 +499,7 @@ const DeliveryListPage = () => {
                 placeholder="e.g. Varun Mehta"
                 value={newOrder.customerName}
                 onChange={(e) => setNewOrder({ ...newOrder, customerName: e.target.value })}
-                className="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-sm outline-none focus:border-primary-500"
+                className="w-full px-3 py-2 rounded-lg bg-white dark:bg-[#1A1A1A] border border-slate-300 dark:border-[#404040] text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
               />
             </div>
             <div>
@@ -512,7 +512,7 @@ const DeliveryListPage = () => {
                 placeholder="+91 98XXX XXXXX"
                 value={newOrder.customerPhone}
                 onChange={(e) => setNewOrder({ ...newOrder, customerPhone: e.target.value })}
-                className="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-sm outline-none focus:border-primary-500"
+                className="w-full px-3 py-2 rounded-lg bg-white dark:bg-[#1A1A1A] border border-slate-300 dark:border-[#404040] text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
               />
             </div>
           </div>
@@ -527,7 +527,7 @@ const DeliveryListPage = () => {
               placeholder="Flat 101, Prestige Tech Park, Marathahalli"
               value={newOrder.deliveryAddress}
               onChange={(e) => setNewOrder({ ...newOrder, deliveryAddress: e.target.value })}
-              className="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-sm outline-none focus:border-primary-500"
+              className="w-full px-3 py-2 rounded-lg bg-white dark:bg-[#1A1A1A] border border-slate-300 dark:border-[#404040] text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
             />
           </div>
 
@@ -541,7 +541,7 @@ const DeliveryListPage = () => {
                 placeholder="2x Whopper, 1x Fries"
                 value={newOrder.items}
                 onChange={(e) => setNewOrder({ ...newOrder, items: e.target.value })}
-                className="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-sm outline-none focus:border-primary-500"
+                className="w-full px-3 py-2 rounded-lg bg-white dark:bg-[#1A1A1A] border border-slate-300 dark:border-[#404040] text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
               />
             </div>
             <div>
@@ -553,7 +553,7 @@ const DeliveryListPage = () => {
                 placeholder="499"
                 value={newOrder.totalAmount}
                 onChange={(e) => setNewOrder({ ...newOrder, totalAmount: e.target.value })}
-                className="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-sm outline-none focus:border-primary-500"
+                className="w-full px-3 py-2 rounded-lg bg-white dark:bg-[#1A1A1A] border border-slate-300 dark:border-[#404040] text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
               />
             </div>
           </div>
@@ -578,7 +578,7 @@ const DeliveryListPage = () => {
           size="md"
         >
           <div className="space-y-4">
-            <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs space-y-2">
+            <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#2E2E2E] text-xs space-y-2">
               <div className="flex items-center justify-between">
                 <span className="font-semibold text-slate-500">Status</span>
                 <StatusBadge status={selectedDelivery.status} size="sm" />
@@ -602,9 +602,9 @@ const DeliveryListPage = () => {
                 </span>
               </div>
               {selectedDelivery.driver && (
-                <div className="flex items-center justify-between pt-1 border-t border-slate-200 dark:border-slate-700">
+                <div className="flex items-center justify-between pt-1 border-t border-slate-200 dark:border-[#2E2E2E]">
                   <span className="font-semibold text-slate-500">Assigned Rider</span>
-                  <span className="font-bold text-primary-600 dark:text-secondary-400">
+                  <span className="font-bold text-amber-500">
                     {selectedDelivery.driver} ({selectedDelivery.vehicle})
                   </span>
                 </div>
@@ -614,10 +614,10 @@ const DeliveryListPage = () => {
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
               Delivery Timeline
             </h4>
-            <div className="relative pl-6 space-y-4 border-l-2 border-primary-200 dark:border-primary-900 ml-2">
+            <div className="relative pl-6 space-y-4 border-l-2 border-amber-500/40 ml-2">
               {selectedDelivery.timeline?.map((step, idx) => (
                 <div key={idx} className="relative">
-                  <span className="absolute -left-[31px] top-0.5 w-3.5 h-3.5 rounded-full bg-primary-600 ring-4 ring-white dark:ring-slate-900" />
+                  <span className="absolute -left-[31px] top-0.5 w-3.5 h-3.5 rounded-full bg-amber-500 ring-4 ring-white dark:ring-[#111111]" />
                   <p className="text-xs font-bold text-slate-900 dark:text-slate-100 capitalize">
                     {step.status.replace(/_/g, ' ')}
                     <span className="text-2xs font-normal text-slate-400 ml-2 font-mono">
@@ -662,7 +662,7 @@ const DeliveryListPage = () => {
                 placeholder="Reason for cancellation..."
                 value={cancelReason}
                 onChange={(e) => setCancelReason(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-xs outline-none focus:border-red-500"
+                className="w-full px-3 py-2 rounded-lg bg-white dark:bg-[#1A1A1A] border border-slate-300 dark:border-[#404040] text-xs text-slate-900 dark:text-slate-100 outline-none focus:border-red-500"
               />
             </div>
 

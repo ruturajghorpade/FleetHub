@@ -47,7 +47,7 @@ const Modal = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm transition-opacity animate-fade-in"
+        className="fixed inset-0 bg-[#090909]/80 backdrop-blur-sm transition-opacity animate-fade-in"
         onClick={onClose}
       />
 
@@ -59,9 +59,9 @@ const Modal = ({
         aria-labelledby={title ? 'modal-title' : undefined}
         className={`
           relative w-full ${SIZES[size] || SIZES.md}
-          bg-white dark:bg-slate-900
-          border border-slate-200 dark:border-slate-800
-          rounded-2xl shadow-xl
+          bg-white dark:bg-[#111111]
+          border border-neutral-200 dark:border-[#2E2E2E]
+          rounded-xl shadow-2xl
           z-10 overflow-hidden
           animate-slide-in-up
           ${className}
@@ -69,15 +69,15 @@ const Modal = ({
       >
         {/* Header */}
         {(title || showClose) && (
-          <div className="flex items-start justify-between p-5 border-b border-slate-100 dark:border-slate-800">
+          <div className="flex items-start justify-between p-5 border-b border-neutral-100 dark:border-[#2E2E2E]">
             <div>
               {title && (
-                <h3 id="modal-title" className="text-base font-semibold text-slate-900 dark:text-slate-100">
+                <h3 id="modal-title" className="text-base font-semibold text-slate-900 dark:text-[#FAFAFA]">
                   {title}
                 </h3>
               )}
               {subtitle && (
-                <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                <p className="mt-0.5 text-xs text-slate-500 dark:text-[#A3A3A3]">
                   {subtitle}
                 </p>
               )}
@@ -86,7 +86,7 @@ const Modal = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#242424] transition-colors"
                 aria-label="Close modal"
               >
                 <HiOutlineXMark className="w-5 h-5" />
@@ -106,7 +106,7 @@ const Modal = ({
  * Modal.Footer – standard action container
  */
 const ModalFooter = ({ children, className = '' }) => (
-  <div className={`mt-5 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-3 ${className}`}>
+  <div className={`mt-5 pt-4 border-t border-neutral-100 dark:border-[#2E2E2E] flex items-center justify-end gap-3 ${className}`}>
     {children}
   </div>
 );

@@ -23,7 +23,7 @@ const Breadcrumb = ({ items = [], className = '' }) => {
               ) : (
                 <Link
                   to={item.path}
-                  className="text-slate-500 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors truncate"
+                  className="text-slate-500 dark:text-slate-400 hover:text-amber-500 dark:hover:text-amber-400 transition-colors truncate"
                 >
                   {item.label}
                 </Link>

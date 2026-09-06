@@ -47,7 +47,7 @@ const DashboardPage = () => {
         />
 
         {/* Interactive Role Switcher Tabs */}
-        <div className="inline-flex p-1 rounded-xl bg-slate-200/70 dark:bg-slate-800/80 border border-slate-300/60 dark:border-slate-700/60 shadow-inner flex-wrap">
+        <div className="inline-flex p-1 rounded-xl bg-neutral-200 dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#2E2E2E] shadow-inner flex-wrap">
           {roleTabs.map((tab) => {
             const isActive = activeRole === tab.id;
             return (
@@ -56,8 +56,8 @@ const DashboardPage = () => {
                 onClick={() => switchRole(tab.id)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                   isActive
-                    ? 'bg-white dark:bg-slate-900 text-primary-600 dark:text-secondary-400 shadow-sm'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
+                    ? 'bg-amber-500 text-black shadow-sm'
+                    : 'text-slate-600 dark:text-[#A3A3A3] hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
                 {tab.label}

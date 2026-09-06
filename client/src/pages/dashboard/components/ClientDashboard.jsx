@@ -138,22 +138,22 @@ const ClientDashboard = () => {
       prev.map((d) =>
         d._id === selectedDelivery._id
           ? {
-              ...d,
-              status: 'cancelled',
-              cancelledBy: 'Client Admin (Domino\'s)',
-              cancellationReason: cancellationReason || 'Customer cancelled prior to pickup',
-              cancelledAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-              driver: null,
-              vehicle: null,
-              timeline: [
-                ...d.timeline,
-                {
-                  status: 'cancelled',
-                  time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                  note: `Order cancelled by restaurant. Reason: ${cancellationReason || 'Pre-pickup cancellation'}. Rider and vehicle released.`,
-                },
-              ],
-            }
+            ...d,
+            status: 'cancelled',
+            cancelledBy: 'Client Admin (Domino\'s)',
+            cancellationReason: cancellationReason || 'Customer cancelled prior to pickup',
+            cancelledAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            driver: null,
+            vehicle: null,
+            timeline: [
+              ...d.timeline,
+              {
+                status: 'cancelled',
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                note: `Order cancelled by restaurant. Reason: ${cancellationReason || 'Pre-pickup cancellation'}. Rider and vehicle released.`,
+              },
+            ],
+          }
           : d
       )
     );
@@ -171,13 +171,12 @@ const ClientDashboard = () => {
       {/* Toast Notification */}
       {notification && (
         <div
-          className={`px-4 py-3 rounded-xl shadow-md border flex items-center justify-between text-sm font-medium transition-all ${
-            notification.type === 'error'
-              ? 'bg-red-50 dark:bg-red-950/50 border-red-200 dark:border-red-900 text-red-800 dark:text-red-200'
-              : notification.type === 'info'
+          className={`px-4 py-3 rounded-xl shadow-md border flex items-center justify-between text-sm font-medium transition-all ${notification.type === 'error'
+            ? 'bg-red-50 dark:bg-red-950/50 border-red-200 dark:border-red-900 text-red-800 dark:text-red-200'
+            : notification.type === 'info'
               ? 'bg-amber-50 dark:bg-amber-950/50 border-amber-200 dark:border-amber-900 text-amber-800 dark:text-amber-200'
               : 'bg-green-50 dark:bg-green-950/50 border-green-200 dark:border-green-900 text-green-800 dark:text-green-200'
-          }`}
+            }`}
         >
           <span>{notification.message}</span>
           <button onClick={() => setNotification(null)} className="text-xs font-bold ml-4">
@@ -187,36 +186,37 @@ const ClientDashboard = () => {
       )}
 
       {/* Header Banner & New Request Action */}
-      <div className="bg-gradient-to-r from-primary-600 to-secondary-600 rounded-xl p-5 text-white shadow-card flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white dark:bg-[#111111] border border-slate-200 dark:border-[#2E2E2E] rounded-xl p-5 text-slate-900 dark:text-white shadow-card flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative overflow-hidden">
+        <div className="h-1 bg-amber-500 absolute top-0 left-0 right-0" />
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="px-2.5 py-0.5 rounded-full bg-white/20 text-2xs font-bold uppercase tracking-wider">
+            <span className="px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-2xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
               Restaurant Portal
             </span>
-            <span className="text-xs text-primary-100 font-medium">FastFleet Partner</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">FastFleet Partner</span>
           </div>
-          <h1 className="text-xl font-bold">{clientName} — Delivery Dashboard</h1>
-          <p className="text-xs text-primary-100 mt-0.5">
+          <h1 className="text-xl font-bold text-slate-900 dark:text-white">{clientName} — Delivery Dashboard</h1>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
             Manage your store's live food orders, rider assignments, and dispatch requests
           </p>
         </div>
 
         <Button
-          variant="secondary"
+          variant="primary"
           size="md"
-          className="bg-white hover:bg-slate-100 text-slate-900 font-bold shadow-md self-start sm:self-auto"
+          className="self-start sm:self-auto shadow-sm"
           onClick={() => setCreateModalOpen(true)}
         >
-          <HiOutlinePlus className="w-5 h-5 text-primary-600" />
+          <HiOutlinePlus className="w-5 h-5 text-black" />
           Request Delivery
         </Button>
       </div>
 
       {/* KPI Cards (Client Specific) */}
       <section className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-card border border-slate-200 dark:border-slate-800 p-4">
+        <div className="bg-white dark:bg-[#111111] rounded-xl shadow-card border border-slate-200 dark:border-[#2E2E2E] p-4 relative overflow-hidden">
           <div className="flex items-center justify-between mb-2">
-            <div className="p-2.5 rounded-lg bg-primary-50 dark:bg-primary-950/40 text-primary-600 dark:text-primary-400">
+            <div className="p-2.5 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
               <HiOutlineTruck className="w-5 h-5" />
             </div>
             <Badge variant="primary" size="sm">Store Orders</Badge>
@@ -225,9 +225,9 @@ const ClientDashboard = () => {
           <p className="text-xs text-slate-500 dark:text-slate-400">Today's Deliveries</p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-card border border-slate-200 dark:border-slate-800 p-4">
+        <div className="bg-white dark:bg-[#111111] rounded-xl shadow-card border border-slate-200 dark:border-[#2E2E2E] p-4 relative overflow-hidden">
           <div className="flex items-center justify-between mb-2">
-            <div className="p-2.5 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400">
+            <div className="p-2.5 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
               <HiOutlineClock className="w-5 h-5" />
             </div>
             <Badge variant="warning" size="sm">Waiting</Badge>
@@ -236,9 +236,9 @@ const ClientDashboard = () => {
           <p className="text-xs text-slate-500 dark:text-slate-400">Pending Deliveries</p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-card border border-slate-200 dark:border-slate-800 p-4">
+        <div className="bg-white dark:bg-[#111111] rounded-xl shadow-card border border-slate-200 dark:border-[#2E2E2E] p-4 relative overflow-hidden">
           <div className="flex items-center justify-between mb-2">
-            <div className="p-2.5 rounded-lg bg-green-50 dark:bg-green-950/40 text-green-600 dark:text-green-400">
+            <div className="p-2.5 rounded-lg bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/20">
               <HiOutlineCheckCircle className="w-5 h-5" />
             </div>
             <Badge variant="success" size="sm">Completed</Badge>
@@ -247,9 +247,9 @@ const ClientDashboard = () => {
           <p className="text-xs text-slate-500 dark:text-slate-400">Delivered Orders</p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-card border border-slate-200 dark:border-slate-800 p-4">
+        <div className="bg-white dark:bg-[#111111] rounded-xl shadow-card border border-slate-200 dark:border-[#2E2E2E] p-4 relative overflow-hidden">
           <div className="flex items-center justify-between mb-2">
-            <div className="p-2.5 rounded-lg bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400">
+            <div className="p-2.5 rounded-lg bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20">
               <HiOutlineXCircle className="w-5 h-5" />
             </div>
             <Badge variant="danger" size="sm">Pre-pickup</Badge>
@@ -273,7 +273,7 @@ const ClientDashboard = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
             <thead>
-              <tr className="border-y border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
+              <tr className="border-y border-slate-200 dark:border-[#2E2E2E] bg-slate-50 dark:bg-[#1A1A1A]">
                 <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500">Order ID</th>
                 <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500">Customer & Items</th>
                 <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500">Assigned Driver</th>
@@ -282,11 +282,11 @@ const ClientDashboard = () => {
                 <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+            <tbody className="divide-y divide-slate-100 dark:divide-[#2E2E2E]">
               {deliveries.map((delivery) => {
                 const canCancel = delivery.status === 'pending' || delivery.status === 'assigned';
                 return (
-                  <tr key={delivery._id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors">
+                  <tr key={delivery._id} className="hover:bg-slate-50/70 dark:hover:bg-[#1A1A1A]/60 transition-colors">
                     <td className="px-5 py-3.5 font-mono text-xs font-bold text-slate-900 dark:text-slate-100">
                       {delivery.orderId}
                       <span className="block text-2xs font-normal text-slate-400 font-sans">
@@ -341,14 +341,14 @@ const ClientDashboard = () => {
                           onClick={() => openTrack(delivery)}
                           title="View Delivery Timeline"
                         >
-                          <HiOutlineEye className="w-4 h-4 text-primary-600" />
+                          <HiOutlineEye className="w-4 h-4 text-amber-500" />
                           Track
                         </Button>
                         {canCancel && (
                           <Button
                             variant="ghost"
                             size="xs"
-                            className="text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40"
+                            className="text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40"
                             onClick={() => openCancel(delivery)}
                             title="Cancel Order (only allowed before pickup)"
                           >
@@ -374,7 +374,7 @@ const ClientDashboard = () => {
         size="md"
       >
         <form onSubmit={handleCreateOrder} className="space-y-4">
-          <div className="p-3 rounded-lg bg-primary-50 dark:bg-primary-950/40 text-xs text-primary-900 dark:text-primary-100 border border-primary-200 dark:border-primary-800">
+          <div className="p-3 rounded-lg bg-amber-500/10 text-xs text-amber-900 dark:text-amber-200 border border-amber-500/30">
             <p className="font-bold">Pickup Location: {clientName} (Indiranagar Outlet)</p>
             <p className="text-2xs opacity-80 mt-0.5">FastFleet dispatchers will receive this request immediately.</p>
           </div>
@@ -390,7 +390,7 @@ const ClientDashboard = () => {
                 placeholder="e.g. Rahul Sen"
                 value={newOrder.customerName}
                 onChange={(e) => setNewOrder({ ...newOrder, customerName: e.target.value })}
-                className="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-sm outline-none focus:border-primary-500"
+                className="w-full px-3 py-2 rounded-lg bg-white dark:bg-[#1A1A1A] border border-slate-300 dark:border-[#404040] text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
               />
             </div>
             <div>
@@ -403,7 +403,7 @@ const ClientDashboard = () => {
                 placeholder="+91 98XXX XXXXX"
                 value={newOrder.customerPhone}
                 onChange={(e) => setNewOrder({ ...newOrder, customerPhone: e.target.value })}
-                className="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-sm outline-none focus:border-primary-500"
+                className="w-full px-3 py-2 rounded-lg bg-white dark:bg-[#1A1A1A] border border-slate-300 dark:border-[#404040] text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
               />
             </div>
           </div>
@@ -418,7 +418,7 @@ const ClientDashboard = () => {
               placeholder="Flat / Building, Street, Landmark, Area"
               value={newOrder.deliveryAddress}
               onChange={(e) => setNewOrder({ ...newOrder, deliveryAddress: e.target.value })}
-              className="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-sm outline-none focus:border-primary-500"
+              className="w-full px-3 py-2 rounded-lg bg-white dark:bg-[#1A1A1A] border border-slate-300 dark:border-[#404040] text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
             />
           </div>
 
@@ -432,7 +432,7 @@ const ClientDashboard = () => {
                 placeholder="e.g. 2x Farmhouse Pizza, 1x Choco Lava"
                 value={newOrder.items}
                 onChange={(e) => setNewOrder({ ...newOrder, items: e.target.value })}
-                className="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-sm outline-none focus:border-primary-500"
+                className="w-full px-3 py-2 rounded-lg bg-white dark:bg-[#1A1A1A] border border-slate-300 dark:border-[#404040] text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
               />
             </div>
             <div>
@@ -444,7 +444,7 @@ const ClientDashboard = () => {
                 placeholder="499"
                 value={newOrder.totalAmount}
                 onChange={(e) => setNewOrder({ ...newOrder, totalAmount: e.target.value })}
-                className="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-sm outline-none focus:border-primary-500"
+                className="w-full px-3 py-2 rounded-lg bg-white dark:bg-[#1A1A1A] border border-slate-300 dark:border-[#404040] text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
               />
             </div>
           </div>
@@ -469,7 +469,7 @@ const ClientDashboard = () => {
           size="md"
         >
           <div className="space-y-4">
-            <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs space-y-2">
+            <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#2E2E2E] text-xs space-y-2">
               <div className="flex items-center justify-between">
                 <span className="font-semibold text-slate-500">Current Status</span>
                 <StatusBadge status={selectedDelivery.status} size="sm" />
@@ -487,9 +487,9 @@ const ClientDashboard = () => {
                 </span>
               </div>
               {selectedDelivery.driver && (
-                <div className="flex items-center justify-between pt-1 border-t border-slate-200 dark:border-slate-700">
+                <div className="flex items-center justify-between pt-1 border-t border-slate-200 dark:border-[#2E2E2E]">
                   <span className="font-semibold text-slate-500">Assigned Partner</span>
-                  <span className="font-bold text-primary-600 dark:text-secondary-400">
+                  <span className="font-bold text-amber-500">
                     {selectedDelivery.driver} ({selectedDelivery.vehicle})
                   </span>
                 </div>
@@ -501,10 +501,10 @@ const ClientDashboard = () => {
               <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">
                 Order Fulfillment Timeline
               </h4>
-              <div className="relative pl-6 space-y-4 border-l-2 border-primary-200 dark:border-primary-900 ml-2">
+              <div className="relative pl-6 space-y-4 border-l-2 border-amber-500/40 ml-2">
                 {selectedDelivery.timeline?.map((step, idx) => (
                   <div key={idx} className="relative">
-                    <span className="absolute -left-[31px] top-0.5 w-3.5 h-3.5 rounded-full bg-primary-600 ring-4 ring-white dark:ring-slate-900" />
+                    <span className="absolute -left-[31px] top-0.5 w-3.5 h-3.5 rounded-full bg-amber-500 ring-4 ring-white dark:ring-[#111111]" />
                     <p className="text-xs font-bold text-slate-900 dark:text-slate-100 capitalize">
                       {step.status.replace(/_/g, ' ')}
                       <span className="text-2xs font-normal text-slate-400 ml-2 font-mono">
@@ -550,7 +550,7 @@ const ClientDashboard = () => {
                 placeholder="e.g. Customer requested cancellation / Kitchen stock shortage"
                 value={cancellationReason}
                 onChange={(e) => setCancellationReason(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-xs outline-none focus:border-red-500"
+                className="w-full px-3 py-2 rounded-lg bg-white dark:bg-[#1A1A1A] border border-slate-300 dark:border-[#404040] text-xs text-slate-900 dark:text-slate-100 outline-none focus:border-red-500"
               />
             </div>
 

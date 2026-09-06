@@ -51,9 +51,9 @@ const Dropdown = ({
           className={`
             absolute ${alignClasses} mt-2 z-50
             min-w-[200px] py-1.5
-            bg-white dark:bg-slate-900
-            rounded-xl shadow-lg
-            border border-slate-200 dark:border-slate-800
+            bg-white dark:bg-[#111111]
+            rounded-xl shadow-xl
+            border border-[#E5E5E5] dark:border-[#2E2E2E]
             animate-fade-in
           `}
         >
@@ -83,7 +83,7 @@ const DropdownItem = ({
       transition-colors duration-150
       ${danger
         ? 'text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10'
-        : 'text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800'
+        : 'text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-[#1A1A1A]'
       }
       ${className}
     `}
@@ -97,7 +97,7 @@ const DropdownItem = ({
  * Dropdown.Divider — horizontal separator
  */
 const DropdownDivider = () => (
-  <div className="my-1.5 border-t border-slate-100 dark:border-slate-800" />
+  <div className="my-1.5 border-t border-slate-100 dark:border-[#2E2E2E]" />
 );
 
 Dropdown.Item = DropdownItem;

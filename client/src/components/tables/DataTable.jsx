@@ -18,11 +18,11 @@ const DataTable = ({
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
           <thead>
-            <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/60">
+            <tr className="border-b border-[#E5E5E5] dark:border-[#2E2E2E] bg-[#F5F5F5] dark:bg-[#1A1A1A]">
               {columns.map((col) => (
                 <th
                   key={col.key}
-                  className={`px-5 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 ${
+                  className={`px-5 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-[#A3A3A3] ${
                     col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'
                   } ${col.className || ''}`}
                 >
@@ -31,7 +31,7 @@ const DataTable = ({
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+          <tbody className="divide-y divide-[#E5E5E5] dark:divide-[#2E2E2E] bg-white dark:bg-[#111111]">
             {data.length === 0 ? (
               <tr>
                 <td colSpan={columns.length} className="py-12">
@@ -45,7 +45,7 @@ const DataTable = ({
                   onClick={() => onRowClick?.(row)}
                   className={`
                     transition-colors duration-150
-                    hover:bg-slate-50/70 dark:hover:bg-slate-800/40
+                    hover:bg-[#FFFBEB] dark:hover:bg-[#1A1A1A]
                     ${onRowClick ? 'cursor-pointer' : ''}
                   `}
                 >
@@ -56,7 +56,7 @@ const DataTable = ({
                     return (
                       <td
                         key={col.key}
-                        className={`px-5 py-3.5 text-slate-700 dark:text-slate-200 ${
+                        className={`px-5 py-3.5 text-slate-800 dark:text-[#FAFAFA] ${
                           col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'
                         } ${col.cellClassName || ''}`}
                       >
@@ -72,7 +72,7 @@ const DataTable = ({
       </div>
 
       {pagination && (
-        <div className="px-5 py-3 border-t border-slate-100 dark:border-slate-800">
+        <div className="px-5 py-3 border-t border-[#E5E5E5] dark:border-[#2E2E2E]">
           <Pagination {...pagination} />
         </div>
       )}

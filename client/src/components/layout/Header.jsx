@@ -34,34 +34,46 @@ const Header = () => {
   };
 
   return (
-    <header className="sticky top-0 z-20 flex items-center justify-between h-16 px-4 md:px-6 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+    <header className="sticky top-0 z-20 flex items-center justify-between h-16 px-4 md:px-6 bg-[#111111] border-b border-[#2E2E2E] text-white">
       {/* Left: Menu toggle + Search */}
       <div className="flex items-center gap-3">
         {/* Mobile menu toggle */}
         <button
           onClick={toggleMobileSidebar}
-          className="lg:hidden p-2 rounded-lg text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          className="lg:hidden p-2 rounded-lg text-[#A3A3A3] hover:text-white hover:bg-[#242424] transition-colors"
           aria-label="Toggle mobile menu"
         >
           <HiOutlineBars3 className="w-5 h-5" />
         </button>
 
+        {/* Mobile logo mark */}
+        <div className="flex items-center gap-2 lg:hidden">
+          <img
+            src="/assets/fleethub-logo-mark.png"
+            alt="FleetHub"
+            className="w-7 h-7 object-contain"
+          />
+          <span className="font-bold text-sm tracking-tight text-white hidden xs:inline">
+            Fleet<span className="text-amber-500">Hub</span>
+          </span>
+        </div>
+
         {/* Desktop sidebar toggle */}
         <button
           onClick={toggleSidebar}
-          className="hidden lg:flex p-2 rounded-lg text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          className="hidden lg:flex p-2 rounded-lg text-[#A3A3A3] hover:text-white hover:bg-[#242424] transition-colors"
           aria-label="Toggle sidebar"
         >
           <HiOutlineBars3 className="w-5 h-5" />
         </button>
 
         {/* Search bar */}
-        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100/70 dark:bg-slate-800/70 border border-slate-200/80 dark:border-slate-700/80 min-w-[280px] transition-all focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-primary-500/20">
-          <HiOutlineMagnifyingGlass className="w-4 h-4 text-slate-400 dark:text-slate-500 flex-shrink-0" />
+        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#1A1A1A] border border-[#2E2E2E] min-w-[280px] transition-all focus-within:border-amber-500 focus-within:ring-2 focus-within:ring-amber-500/20">
+          <HiOutlineMagnifyingGlass className="w-4 h-4 text-[#A3A3A3] flex-shrink-0" />
           <input
             type="text"
             placeholder="Search orders, riders, restaurants..."
-            className="w-full bg-transparent text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none"
+            className="w-full bg-transparent text-sm text-[#FAFAFA] placeholder:text-slate-500 outline-none"
           />
         </div>
       </div>
@@ -69,24 +81,24 @@ const Header = () => {
       {/* Right: Actions & Role Switcher */}
       <div className="flex items-center gap-2">
         {/* Fast Role Switcher */}
-        <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs">
-          <span className="text-slate-400 font-medium hidden sm:inline">Role:</span>
+        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#1A1A1A] border border-[#2E2E2E] text-xs">
+          <span className="text-[#A3A3A3] font-medium hidden sm:inline">Role:</span>
           <select
             value={activeRole}
             onChange={(e) => switchRole(e.target.value)}
-            className="bg-transparent font-semibold text-slate-800 dark:text-slate-200 outline-none cursor-pointer text-xs"
+            className="bg-transparent font-semibold text-amber-400 outline-none cursor-pointer text-xs"
             aria-label="Switch Role"
           >
-            <option value="super_admin" className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200">
+            <option value="super_admin" className="bg-[#111111] text-slate-200">
               👑 Super Admin
             </option>
-            <option value="client_admin" className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200">
+            <option value="client_admin" className="bg-[#111111] text-slate-200">
               🍕 Client (Domino's)
             </option>
-            <option value="dispatcher" className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200">
+            <option value="dispatcher" className="bg-[#111111] text-slate-200">
               📻 Dispatcher
             </option>
-            <option value="driver" className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200">
+            <option value="driver" className="bg-[#111111] text-slate-200">
               🛵 Driver Partner
             </option>
           </select>
@@ -95,7 +107,7 @@ const Header = () => {
         {/* Theme toggle */}
         <button
           onClick={toggleTheme}
-          className="p-2 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-800 transition-colors"
+          className="p-2 rounded-lg text-[#A3A3A3] hover:text-white hover:bg-[#242424] transition-colors"
           aria-label={`Theme: ${themeLabel()}`}
           title={`Theme: ${themeLabel()}`}
         >
@@ -104,31 +116,28 @@ const Header = () => {
 
         {/* Notifications */}
         <button
-          className="relative p-2 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-800 transition-colors"
+          className="relative p-2 rounded-lg text-[#A3A3A3] hover:text-white hover:bg-[#242424] transition-colors"
           aria-label="Notifications"
         >
           <HiOutlineBell className="w-5 h-5" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white dark:ring-slate-900" />
+          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-amber-500 rounded-full ring-2 ring-[#111111]" />
         </button>
 
         {/* Divider */}
-        <div className="hidden md:block w-px h-6 bg-slate-200 dark:bg-slate-800 mx-1" />
+        <div className="hidden md:block w-px h-6 bg-[#2E2E2E] mx-1" />
 
         {/* User dropdown */}
         <Dropdown
           trigger={
-            <div className="flex items-center gap-2.5 pl-1 cursor-pointer rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 p-1.5 transition-colors">
-              <div
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold flex-shrink-0 shadow-sm"
-                style={{ background: 'linear-gradient(135deg, #0F6B7A, #14B8A6)' }}
-              >
+            <div className="flex items-center gap-2.5 pl-1 cursor-pointer rounded-lg hover:bg-[#242424] p-1.5 transition-colors">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center text-black text-xs font-bold flex-shrink-0 shadow-sm bg-amber-500">
                 {getInitials(user?.name || 'U')}
               </div>
               <div className="hidden md:block text-left">
-                <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 leading-tight">
+                <p className="text-sm font-semibold text-white leading-tight">
                   {user?.name || 'User'}
                 </p>
-                <p className="text-2xs text-slate-400 leading-tight">
+                <p className="text-2xs text-[#A3A3A3] leading-tight">
                   {user?.roleTitle || user?.organization || 'FastFleet'}
                 </p>
               </div>
@@ -138,14 +147,14 @@ const Header = () => {
         >
           {({ close }) => (
             <>
-              <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800">
-                <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+              <div className="px-4 py-3 border-b border-[#2E2E2E]">
+                <p className="text-sm font-semibold text-white">
                   {user?.name}
                 </p>
-                <p className="text-xs text-primary-600 dark:text-secondary-400 font-medium">
+                <p className="text-xs text-amber-500 font-medium">
                   {user?.roleTitle}
                 </p>
-                <p className="text-2xs text-slate-400 mt-0.5">
+                <p className="text-2xs text-[#A3A3A3] mt-0.5">
                   {user?.organization}
                 </p>
               </div>

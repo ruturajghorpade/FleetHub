@@ -22,14 +22,14 @@
   }
 
   body {
-    @apply bg-slate-50 text-slate-900 font-sans;
+    @apply bg-[#F5F5F5] text-[#171717] font-sans;
     min-height: 100vh;
   }
 
   /* Dark mode body */
   .dark body,
   body.dark {
-    @apply bg-slate-950 text-slate-100;
+    @apply bg-[#090909] text-[#FAFAFA];
   }
 
   /* Scrollbar */
@@ -51,31 +51,31 @@
   }
 
   .dark ::-webkit-scrollbar-thumb {
-    @apply bg-slate-700;
+    @apply bg-[#2E2E2E];
   }
 
   .dark ::-webkit-scrollbar-thumb:hover {
-    @apply bg-slate-600;
+    @apply bg-[#404040];
   }
 
   /* Selection */
   ::selection {
-    @apply bg-secondary-500/20 text-primary-700;
+    @apply bg-amber-500/30 text-amber-950;
   }
 
   .dark ::selection {
-    @apply bg-secondary-400/30 text-secondary-200;
+    @apply bg-amber-500/30 text-amber-200;
   }
 }
 
 @layer components {
   /* Glass card effect (subtle, non-excessive) */
   .glass-card {
-    @apply bg-white/80 backdrop-blur-md border border-slate-200/80 shadow-card rounded-xl;
+    @apply bg-white/90 backdrop-blur-md border border-neutral-200 shadow-card rounded-xl;
   }
 
   .dark .glass-card {
-    @apply bg-slate-900/80 border-slate-800/80;
+    @apply bg-[#111111]/90 border-[#2E2E2E];
   }
 
   /* Page container */
@@ -85,20 +85,20 @@
 
   /* Page title */
   .page-title {
-    @apply text-2xl md:text-3xl font-bold tracking-tight text-slate-900;
+    @apply text-2xl md:text-3xl font-bold tracking-tight text-neutral-900;
   }
 
   .dark .page-title {
-    @apply text-slate-50;
+    @apply text-[#FAFAFA];
   }
 
   /* Card component base */
   .card {
-    @apply bg-white rounded-xl shadow-card border border-slate-200 p-5 transition-all duration-200 hover:shadow-card-hover;
+    @apply bg-white rounded-xl shadow-card border border-neutral-200 p-5 transition-all duration-200 hover:shadow-card-hover;
   }
 
   .dark .card {
-    @apply bg-slate-900 border-slate-800;
+    @apply bg-[#111111] border-[#2E2E2E];
   }
 
   /* Badge base */
@@ -115,29 +115,29 @@
   }
 
   .btn-primary {
-    @apply btn bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500
-           shadow-sm hover:shadow active:scale-[0.98];
+    @apply btn bg-amber-500 text-black hover:bg-amber-600 focus:ring-amber-500
+           shadow-sm hover:shadow active:scale-[0.98] font-bold;
   }
 
   .btn-accent {
-    @apply btn bg-secondary-500 text-white hover:bg-secondary-600 focus:ring-secondary-400
+    @apply btn bg-amber-600 text-white hover:bg-amber-700 focus:ring-amber-500
            shadow-sm hover:shadow active:scale-[0.98];
   }
 
   .btn-secondary {
-    @apply btn bg-slate-100 text-slate-700 hover:bg-slate-200 focus:ring-slate-400;
+    @apply btn bg-slate-100 text-slate-800 hover:bg-slate-200 focus:ring-slate-400;
   }
 
   .dark .btn-secondary {
-    @apply bg-slate-800 text-slate-200 hover:bg-slate-700;
+    @apply bg-[#242424] text-white hover:bg-[#2E2E2E];
   }
 
   .btn-outline {
-    @apply btn bg-transparent border border-slate-300 text-slate-700 hover:bg-slate-50 focus:ring-primary-500;
+    @apply btn bg-transparent border border-amber-500 text-amber-600 hover:bg-amber-50 focus:ring-amber-500;
   }
 
   .dark .btn-outline {
-    @apply border-slate-700 text-slate-200 hover:bg-slate-800;
+    @apply border-amber-500 text-amber-400 hover:bg-amber-500/10;
   }
 
   .btn-danger {
@@ -146,31 +146,31 @@
   }
 
   .btn-ghost {
-    @apply btn bg-transparent text-slate-600 hover:bg-slate-100 focus:ring-primary-300;
+    @apply btn bg-transparent text-slate-600 hover:bg-slate-100 focus:ring-amber-400;
   }
 
   .dark .btn-ghost {
-    @apply text-slate-300 hover:bg-slate-800;
+    @apply text-slate-300 hover:bg-[#242424];
   }
 
   /* Input base */
   .input {
-    @apply w-full px-3.5 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm
+    @apply w-full px-3.5 py-2.5 rounded-lg border border-[#D4D4D4] bg-white text-[#171717] text-sm
            placeholder:text-slate-400
            transition-all duration-200
-           focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500;
+           focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500;
   }
 
   .dark .input {
-    @apply bg-slate-900 border-slate-700 text-slate-100 placeholder:text-slate-500
-           focus:ring-primary-400/20 focus:border-primary-400;
+    @apply bg-[#1A1A1A] border-[#404040] text-[#FAFAFA] placeholder:text-slate-500
+           focus:ring-amber-500/20 focus:border-amber-500;
   }
 }
 
 @layer utilities {
   /* Gradient text */
   .text-gradient {
-    @apply bg-gradient-to-r from-primary-600 to-secondary-500 bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-amber-500 to-amber-600 bg-clip-text text-transparent;
   }
 
   /* Truncate multi-line */

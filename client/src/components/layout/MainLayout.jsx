@@ -10,7 +10,7 @@ const MainLayout = () => {
   const { collapsed } = useSidebar();
 
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+    <div className="flex h-screen overflow-hidden bg-[#F5F5F5] dark:bg-[#090909] text-[#171717] dark:text-[#FAFAFA]">
       {/* Desktop Sidebar */}
       <Sidebar />
 

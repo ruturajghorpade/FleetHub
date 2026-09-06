@@ -106,20 +106,23 @@ const AdminDashboard = () => {
           return (
             <div
               key={kpi.id}
-              className="bg-white dark:bg-slate-900 rounded-xl shadow-card border border-slate-200 dark:border-slate-800 p-4 transition-all duration-200 hover:shadow-card-hover"
+              className="bg-white dark:bg-[#111111] rounded-xl shadow-sm border border-neutral-200 dark:border-[#2E2E2E] p-4 relative overflow-hidden group hover:border-amber-500/50 transition-all duration-200"
             >
+              {/* Subtle amber accent bar */}
+              <div className="absolute top-0 left-0 right-0 h-0.5 bg-amber-500/80" />
+
               <div className="flex items-start justify-between mb-2.5">
-                <div className={`p-2.5 rounded-lg ${kpi.color}`}>
+                <div className="p-2.5 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
                   <Icon className="w-5 h-5" />
                 </div>
-                <span className="text-2xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+                <span className="text-2xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-[#1A1A1A] text-slate-600 dark:text-[#A3A3A3] border border-slate-200 dark:border-[#2E2E2E]">
                   {kpi.change}
                 </span>
               </div>
-              <p className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-50 mb-0.5">
+              <p className="text-2xl font-bold tracking-tight text-slate-900 dark:text-[#FAFAFA] mb-0.5">
                 {kpi.value}
               </p>
-              <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+              <p className="text-xs font-medium text-slate-500 dark:text-[#A3A3A3]">
                 {kpi.label}
               </p>
             </div>
@@ -154,27 +157,27 @@ const AdminDashboard = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
               <thead>
-                <tr className="border-y border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/60">
-                  <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Restaurant</th>
-                  <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 text-center">Orders</th>
-                  <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 text-right">Revenue</th>
-                  <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 text-center">On-Time</th>
+                <tr className="border-y border-[#E5E5E5] dark:border-[#2E2E2E] bg-[#F5F5F5] dark:bg-[#1A1A1A]">
+                  <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500 dark:text-[#A3A3A3]">Restaurant</th>
+                  <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500 dark:text-[#A3A3A3] text-center">Orders</th>
+                  <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500 dark:text-[#A3A3A3] text-right">Revenue</th>
+                  <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500 dark:text-[#A3A3A3] text-center">On-Time</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+              <tbody className="divide-y divide-[#E5E5E5] dark:divide-[#2E2E2E] bg-white dark:bg-[#111111]">
                 {RESTAURANT_ORDERS_DATA.map((rest) => (
-                  <tr key={rest.name} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors">
+                  <tr key={rest.name} className="hover:bg-[#FFFBEB] dark:hover:bg-[#1A1A1A] transition-colors">
                     <td className="px-5 py-3 font-semibold text-slate-800 dark:text-slate-200">
                       {rest.name}
                     </td>
-                    <td className="px-5 py-3 text-center font-bold text-slate-900 dark:text-slate-100">
+                    <td className="px-5 py-3 text-center font-bold text-slate-900 dark:text-[#FAFAFA]">
                       {rest.orders}
                     </td>
                     <td className="px-5 py-3 text-right font-mono text-slate-700 dark:text-slate-300">
                       ₹{rest.revenue.toLocaleString('en-IN')}
                     </td>
                     <td className="px-5 py-3 text-center">
-                      <span className="inline-block px-2 py-0.5 rounded-full text-xs font-semibold bg-green-50 dark:bg-green-500/10 text-green-700 dark:text-green-400">
+                      <span className="inline-block px-2 py-0.5 rounded-full text-xs font-semibold bg-green-50 dark:bg-green-500/10 text-green-700 dark:text-green-400 border border-green-200/60 dark:border-green-500/20">
                         {rest.onTime}
                       </span>
                     </td>
@@ -200,20 +203,20 @@ const AdminDashboard = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
               <thead>
-                <tr className="border-y border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/60">
-                  <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Partner</th>
-                  <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 text-center">Delivered</th>
-                  <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 text-center">Avg Time</th>
-                  <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 text-center">Rating</th>
+                <tr className="border-y border-[#E5E5E5] dark:border-[#2E2E2E] bg-[#F5F5F5] dark:bg-[#1A1A1A]">
+                  <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500 dark:text-[#A3A3A3]">Partner</th>
+                  <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500 dark:text-[#A3A3A3] text-center">Delivered</th>
+                  <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500 dark:text-[#A3A3A3] text-center">Avg Time</th>
+                  <th className="px-5 py-2.5 text-xs font-semibold uppercase text-slate-500 dark:text-[#A3A3A3] text-center">Rating</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+              <tbody className="divide-y divide-[#E5E5E5] dark:divide-[#2E2E2E] bg-white dark:bg-[#111111]">
                 {DRIVER_PERFORMANCE_DATA.map((driver) => (
-                  <tr key={driver.name} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors">
+                  <tr key={driver.name} className="hover:bg-[#FFFBEB] dark:hover:bg-[#1A1A1A] transition-colors">
                     <td className="px-5 py-3 font-semibold text-slate-800 dark:text-slate-200">
                       {driver.name}
                     </td>
-                    <td className="px-5 py-3 text-center font-bold text-slate-900 dark:text-slate-100">
+                    <td className="px-5 py-3 text-center font-bold text-slate-900 dark:text-[#FAFAFA]">
                       {driver.completed}
                     </td>
                     <td className="px-5 py-3 text-center text-slate-600 dark:text-slate-300 font-mono text-xs">

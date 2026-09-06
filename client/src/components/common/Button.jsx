@@ -3,17 +3,17 @@ import Spinner from './Spinner';
 
 const VARIANTS = {
   primary:
-    'bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500 shadow-sm hover:shadow active:scale-[0.98]',
+    'bg-amber-500 text-black font-bold hover:bg-amber-600 focus:ring-amber-500 shadow-sm hover:shadow active:scale-[0.98]',
   secondary:
-    'bg-slate-100 text-slate-700 hover:bg-slate-200 focus:ring-slate-400 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700',
+    'bg-slate-100 text-slate-800 hover:bg-slate-200 focus:ring-slate-400 dark:bg-[#242424] dark:text-white dark:hover:bg-[#2E2E2E]',
   danger:
-    'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 shadow-sm active:scale-[0.98]',
+    'bg-red-600 text-white font-medium hover:bg-red-700 focus:ring-red-500 shadow-sm active:scale-[0.98]',
   ghost:
-    'bg-transparent text-slate-600 hover:bg-slate-100 focus:ring-primary-400 dark:text-slate-300 dark:hover:bg-slate-800',
+    'bg-transparent text-slate-600 hover:bg-slate-100 focus:ring-amber-400 dark:text-slate-300 dark:hover:bg-[#242424]',
   outline:
-    'border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 focus:ring-primary-500',
+    'border border-amber-500 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-500/10 focus:ring-amber-500 font-medium',
   accent:
-    'bg-secondary-500 text-white hover:bg-secondary-600 focus:ring-secondary-400 shadow-sm active:scale-[0.98]',
+    'bg-amber-600 text-white font-bold hover:bg-amber-700 focus:ring-amber-500 shadow-sm active:scale-[0.98]',
 };
 
 const SIZES = {

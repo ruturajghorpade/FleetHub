@@ -668,8 +668,8 @@ export const DRIVER_PERFORMANCE_DATA = [
 
 // ─── Vehicle Status Distribution ───────────────────────────
 export const FLEET_STATUS_DATA = [
-  { name: 'Available Bikes', value: 26, color: '#16A34A' },
-  { name: 'On Delivery', value: 18, color: '#0F6B7A' },
+  { name: 'Available Bikes', value: 26, color: '#22C55E' },
+  { name: 'On Delivery', value: 18, color: '#3B82F6' },
   { name: 'Maintenance', value: 8, color: '#F59E0B' },
 ];
 
