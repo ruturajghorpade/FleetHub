@@ -7,7 +7,7 @@ import asyncHandler from '../utils/asyncHandler.js';
 // POST /api/v1/branches
 // ════════════════════════════════════════
 export const createBranch = asyncHandler(async (req, res) => {
-  const branch = await branchService.createBranch(req.body, req.user._id);
+  const branch = await branchService.createBranch(req.body, req.user);
 
   return ApiResponse.created(res, 'Branch created successfully', { branch });
 });
@@ -16,7 +16,7 @@ export const createBranch = asyncHandler(async (req, res) => {
 // GET /api/v1/branches
 // ════════════════════════════════════════
 export const getBranches = asyncHandler(async (req, res) => {
-  const { branches, meta } = await branchService.getBranches(req.query);
+  const { branches, meta } = await branchService.getBranches(req.query, req.user);
 
   return ApiResponse.ok(res, 'Branches retrieved successfully', { branches }, meta);
 });
@@ -25,7 +25,7 @@ export const getBranches = asyncHandler(async (req, res) => {
 // GET /api/v1/branches/:id
 // ════════════════════════════════════════
 export const getBranch = asyncHandler(async (req, res) => {
-  const branch = await branchService.getBranchById(req.params.id);
+  const branch = await branchService.getBranchById(req.params.id, req.user);
 
   return ApiResponse.ok(res, 'Branch retrieved successfully', { branch });
 });
@@ -34,7 +34,7 @@ export const getBranch = asyncHandler(async (req, res) => {
 // PUT /api/v1/branches/:id
 // ════════════════════════════════════════
 export const updateBranch = asyncHandler(async (req, res) => {
-  const branch = await branchService.updateBranch(req.params.id, req.body, req.user._id);
+  const branch = await branchService.updateBranch(req.params.id, req.body, req.user);
 
   return ApiResponse.ok(res, 'Branch updated successfully', { branch });
 });
@@ -43,7 +43,7 @@ export const updateBranch = asyncHandler(async (req, res) => {
 // DELETE /api/v1/branches/:id
 // ════════════════════════════════════════
 export const deleteBranch = asyncHandler(async (req, res) => {
-  await branchService.deleteBranch(req.params.id, req.user._id);
+  await branchService.deleteBranch(req.params.id, req.user);
 
   return ApiResponse.ok(res, 'Branch deleted successfully');
 });

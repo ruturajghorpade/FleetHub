@@ -8,7 +8,7 @@ import { ROLES } from '../utils/constants.js';
 const router = express.Router();
 
 router.use(protect);
-router.use(authorize(ROLES.SUPER_ADMIN));
+router.use(authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.DISPATCHER));
 
 router.get('/daily-deliveries', reportController.getDailyDeliveries);
 router.get('/restaurants', reportController.getRestaurantReport);

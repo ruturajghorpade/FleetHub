@@ -1,30 +1,29 @@
 // FleetHub – RoleRoute (Role-Based Access Guard)
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
-import { ROLE_HIERARCHY } from '@/config/roleConfig';
+import { hasAllowedRole } from '@/utils/permissions';
+import Loader from '@/components/common/Loader';
 
 /**
- * Restricts access based on user role.
- * @param {string[]} allowedRoles – Array of role strings that are allowed access.
+ * Restricts route access based on user's active role.
+ * @param {string[]} allowedRoles – Array of role strings allowed access.
  */
 const RoleRoute = ({ allowedRoles = [], children }) => {
-  const { user } = useAuth();
+  const { user, loading, isAuthenticated } = useAuth();
+  const location = useLocation();
 
-  if (!user) {
-    return <Navigate to="/login" replace />;
+  if (loading) {
+    return <Loader message="Verifying role permissions..." />;
   }
 
-  // Check if user's role is in the allowed list
-  const hasRole = allowedRoles.includes(user.role);
+  if (!isAuthenticated || !user) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
 
-  // Also allow if user's role is higher in hierarchy
-  const userRoleIndex = ROLE_HIERARCHY.indexOf(user.role);
-  const minAllowedIndex = Math.min(
-    ...allowedRoles.map((r) => ROLE_HIERARCHY.indexOf(r)).filter((i) => i >= 0)
-  );
-  const hasHigherRole = userRoleIndex >= 0 && userRoleIndex <= minAllowedIndex;
+  // Check if role has access
+  const isAuthorized = hasAllowedRole(user.role, allowedRoles);
 
-  if (!hasRole && !hasHigherRole) {
+  if (!isAuthorized) {
     return <Navigate to="/unauthorized" replace />;
   }
 

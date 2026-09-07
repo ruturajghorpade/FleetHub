@@ -45,6 +45,7 @@ const userSchema = new mongoose.Schema(
         message: '{VALUE} is not a valid role',
       },
       default: ROLES.DISPATCHER,
+      set: (v) => (v ? v.toLowerCase() : v),
     },
 
     client: {

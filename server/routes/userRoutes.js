@@ -33,12 +33,12 @@ router.use(protect);
 router
   .route('/')
   .post(
-    authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.BRANCH_MANAGER),
+    authorize(ROLES.SUPER_ADMIN),
     createUserValidator,
     createUser
   )
   .get(
-    authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.BRANCH_MANAGER, ROLES.DISPATCHER),
+    authorize(ROLES.SUPER_ADMIN),
     getUsers
   );
 
@@ -48,17 +48,17 @@ router
 router
   .route('/:id')
   .get(
-    authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.BRANCH_MANAGER, ROLES.DISPATCHER, ROLES.DRIVER),
+    authorize(ROLES.SUPER_ADMIN),
     userIdValidator,
     getUser
   )
   .put(
-    authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN),
+    authorize(ROLES.SUPER_ADMIN),
     updateUserValidator,
     updateUser
   )
   .delete(
-    authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN),
+    authorize(ROLES.SUPER_ADMIN),
     userIdValidator,
     deleteUser
   );
@@ -68,7 +68,7 @@ router
 // ════════════════════════════════════════
 router.patch(
   '/:id/activate',
-  authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN),
+  authorize(ROLES.SUPER_ADMIN),
   userIdValidator,
   activateUser
 );
@@ -78,7 +78,7 @@ router.patch(
 // ════════════════════════════════════════
 router.patch(
   '/:id/deactivate',
-  authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN),
+  authorize(ROLES.SUPER_ADMIN),
   userIdValidator,
   deactivateUser
 );
@@ -88,7 +88,7 @@ router.patch(
 // ════════════════════════════════════════
 router.patch(
   '/:id/role',
-  authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN),
+  authorize(ROLES.SUPER_ADMIN),
   updateRoleValidator,
   updateUserRole
 );
@@ -98,7 +98,7 @@ router.patch(
 // ════════════════════════════════════════
 router.patch(
   '/:id/reset-password',
-  authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN),
+  authorize(ROLES.SUPER_ADMIN),
   resetPasswordValidator,
   resetUserPassword
 );

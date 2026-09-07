@@ -1,6 +1,7 @@
-// FleetHub – Route Definitions (Food Delivery Logistics Platform)
+// FleetHub – Route Definitions with Role Permissions (Food Delivery Logistics Platform)
 import { lazy } from 'react';
 import ROUTES from '@/config/routeConfig';
+import { ROLES } from '@/config/roleConfig';
 
 // Lazy-loaded pages
 const DashboardPage = lazy(() => import('@/pages/dashboard/DashboardPage'));
@@ -16,6 +17,7 @@ const NotificationsPage = lazy(() => import('@/pages/notifications/Notifications
 const UserListPage = lazy(() => import('@/pages/users/UserListPage'));
 const SettingsPage = lazy(() => import('@/pages/settings/SettingsPage'));
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage'));
+const RegisterPage = lazy(() => import('@/pages/auth/RegisterPage'));
 const UnauthorizedPage = lazy(() => import('@/pages/auth/UnauthorizedPage'));
 const NotFoundPage = lazy(() => import('@/pages/errors/NotFoundPage'));
 
@@ -23,6 +25,7 @@ const NotFoundPage = lazy(() => import('@/pages/errors/NotFoundPage'));
  * Route definitions
  * - layout: 'main' | 'auth' | 'none'
  * - auth: whether the route requires authentication
+ * - allowedRoles: which roles are permitted access (enforced by RoleRoute)
  */
 export const appRoutes = [
   {
@@ -30,6 +33,7 @@ export const appRoutes = [
     element: DashboardPage,
     layout: 'main',
     auth: true,
+    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.DISPATCHER, ROLES.DRIVER],
     title: 'Dashboard',
   },
   {
@@ -37,27 +41,23 @@ export const appRoutes = [
     element: DeliveryListPage,
     layout: 'main',
     auth: true,
+    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.DISPATCHER, ROLES.DRIVER],
     title: 'Food Deliveries',
   },
   {
-    path: ROUTES.CLIENTS,
-    element: ClientListPage,
+    path: ROUTES.ROUTES_LIST,
+    element: RouteListPage,
     layout: 'main',
     auth: true,
-    title: 'Restaurant Clients',
-  },
-  {
-    path: ROUTES.BRANCHES,
-    element: BranchListPage,
-    layout: 'main',
-    auth: true,
-    title: 'Kitchen Outlets & Hubs',
+    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.DISPATCHER, ROLES.DRIVER],
+    title: 'Active Corridors',
   },
   {
     path: ROUTES.VEHICLES,
     element: VehicleListPage,
     layout: 'main',
     auth: true,
+    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.DISPATCHER],
     title: 'EV Fleet & Bikes',
   },
   {
@@ -65,6 +65,7 @@ export const appRoutes = [
     element: DriverListPage,
     layout: 'main',
     auth: true,
+    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.DISPATCHER],
     title: 'Driver Partners',
   },
   {
@@ -72,27 +73,31 @@ export const appRoutes = [
     element: MaintenanceListPage,
     layout: 'main',
     auth: true,
+    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.DISPATCHER],
     title: 'Vehicle Maintenance',
   },
   {
-    path: ROUTES.ROUTES_LIST,
-    element: RouteListPage,
+    path: ROUTES.CLIENTS,
+    element: ClientListPage,
     layout: 'main',
     auth: true,
-    title: 'Active Corridors',
+    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN],
+    title: 'Restaurant Clients',
   },
   {
-    path: ROUTES.NOTIFICATIONS,
-    element: NotificationsPage,
+    path: ROUTES.BRANCHES,
+    element: BranchListPage,
     layout: 'main',
     auth: true,
-    title: 'Notifications & Alerts',
+    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.DISPATCHER],
+    title: 'Kitchen Outlets & Hubs',
   },
   {
     path: ROUTES.REPORTS,
     element: ReportsPage,
     layout: 'main',
     auth: true,
+    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.DISPATCHER],
     title: 'Reports & Intelligence',
   },
   {
@@ -100,13 +105,23 @@ export const appRoutes = [
     element: UserListPage,
     layout: 'main',
     auth: true,
+    allowedRoles: [ROLES.SUPER_ADMIN],
     title: 'User Management',
+  },
+  {
+    path: ROUTES.NOTIFICATIONS,
+    element: NotificationsPage,
+    layout: 'main',
+    auth: true,
+    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.DISPATCHER, ROLES.DRIVER],
+    title: 'Notifications & Alerts',
   },
   {
     path: ROUTES.SETTINGS,
     element: SettingsPage,
     layout: 'main',
     auth: true,
+    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.DISPATCHER, ROLES.DRIVER],
     title: 'System Settings',
   },
 ];
@@ -118,6 +133,13 @@ export const authRoutes = [
     layout: 'auth',
     auth: false,
     title: 'Login',
+  },
+  {
+    path: ROUTES.REGISTER,
+    element: RegisterPage,
+    layout: 'auth',
+    auth: false,
+    title: 'Register',
   },
   {
     path: ROUTES.UNAUTHORIZED,

@@ -5,6 +5,7 @@ import { useSidebar } from '@/context/SidebarContext';
 import { useAuth } from '@/context/AuthContext';
 import SIDEBAR_CONFIG from '@/config/sidebarConfig';
 import { getInitials } from '@/utils/helpers';
+import { canAccessNavItem } from '@/utils/permissions';
 
 const MobileSidebar = () => {
   const { mobileOpen, closeMobileSidebar } = useSidebar();
@@ -16,20 +17,9 @@ const MobileSidebar = () => {
     return location.pathname.startsWith(path);
   };
 
-  // Filter sidebar groups and items based on active role permissions
+  // Filter sidebar groups and items based on centralized role permissions
   const filteredConfig = SIDEBAR_CONFIG.map((group) => {
-    const items = group.items.filter((item) => {
-      if (user?.role === 'driver') {
-        return ['dashboard', 'deliveries', 'notifications'].includes(item.id);
-      }
-      if (user?.role === 'client_admin') {
-        return ['dashboard', 'deliveries', 'reports', 'notifications', 'settings'].includes(item.id);
-      }
-      if (user?.role === 'dispatcher') {
-        return ['dashboard', 'deliveries', 'routes', 'vehicles', 'drivers', 'notifications'].includes(item.id);
-      }
-      return true;
-    });
+    const items = group.items.filter((item) => canAccessNavItem(user?.role, item.id));
     return { ...group, items };
   }).filter((group) => group.items.length > 0);
 

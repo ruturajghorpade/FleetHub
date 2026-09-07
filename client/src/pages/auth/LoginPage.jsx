@@ -1,28 +1,46 @@
 // FleetHub – Login Page (Enterprise Authentication)
-import { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth, ROLE_ACCOUNTS } from '@/context/AuthContext';
 import Button from '@/components/common/Button';
-import { HiOutlineEnvelope, HiOutlineLockClosed } from 'react-icons/hi2';
+import { HiOutlineEnvelope, HiOutlineLockClosed, HiOutlineExclamationCircle } from 'react-icons/hi2';
+import ROUTES from '@/config/routeConfig';
 
 const LoginPage = () => {
-  const [email, setEmail] = useState('admin@fastfleet.in');
-  const [password, setPassword] = useState('Password@123');
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [email, setEmail] = useState(location.state?.registeredEmail || 'admin@fastfleet.in');
+  const [password, setPassword] = useState(location.state?.registeredEmail ? '' : 'Password@123');
+  const [errorMessage, setErrorMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const { login } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
+
+  useEffect(() => {
+    if (location.state?.registeredEmail) {
+      setEmail(location.state.registeredEmail);
+      setPassword('');
+    }
+  }, [location.state]);
 
   const from = location.state?.from?.pathname || '/';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrorMessage('');
+
+    if (!email.trim() || !password.trim()) {
+      setErrorMessage('Please enter both email and password.');
+      return;
+    }
+
     setSubmitting(true);
     const result = await login({ email, password });
     setSubmitting(false);
 
     if (result?.success) {
       navigate(from, { replace: true });
+    } else {
+      setErrorMessage(result?.error || 'Invalid email or password.');
     }
   };
 
@@ -31,12 +49,13 @@ const LoginPage = () => {
     if (acc) {
       setEmail(acc.email);
       setPassword(acc.password);
+      setErrorMessage('');
     }
   };
 
   return (
     <div className="card p-8 rounded-2xl border border-[#E5E5E5] dark:border-[#2E2E2E] shadow-card bg-white dark:bg-[#111111]">
-      <div className="text-center mb-8">
+      <div className="text-center mb-6">
         <h2 className="text-2xl font-bold text-slate-900 dark:text-[#FAFAFA] tracking-tight">
           Welcome back
         </h2>
@@ -44,6 +63,14 @@ const LoginPage = () => {
           Sign in to your FleetHub operations portal
         </p>
       </div>
+
+      {/* Inline Error Banner */}
+      {errorMessage && (
+        <div className="mb-5 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-start gap-2.5 text-xs animate-fade-in">
+          <HiOutlineExclamationCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+          <span>{errorMessage}</span>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* Email */}
@@ -57,7 +84,10 @@ const LoginPage = () => {
               id="login-email"
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (errorMessage) setErrorMessage('');
+              }}
               className="input pl-9"
               placeholder="admin@fastfleet.in"
               required
@@ -78,7 +108,10 @@ const LoginPage = () => {
               id="login-password"
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                if (errorMessage) setErrorMessage('');
+              }}
               className="input pl-9"
               placeholder="••••••••"
               required
@@ -92,8 +125,9 @@ const LoginPage = () => {
           variant="primary"
           className="w-full py-2.5 font-bold"
           loading={submitting}
+          disabled={submitting}
         >
-          Sign in to Dashboard
+          Sign in to Operations
         </Button>
       </form>
 
@@ -136,6 +170,19 @@ const LoginPage = () => {
             <p className="text-[10px] text-slate-500 truncate">rajesh.rider@fastfleet.in</p>
           </button>
         </div>
+      </div>
+
+      {/* Switch to Register Link */}
+      <div className="mt-5 pt-4 border-t border-slate-200 dark:border-[#2E2E2E] text-center text-xs">
+        <span className="text-slate-500 dark:text-[#A3A3A3]">
+          Don't have an account?{' '}
+        </span>
+        <Link
+          to={ROUTES.REGISTER}
+          className="font-bold text-amber-500 hover:text-amber-400 transition-colors ml-1"
+        >
+          Create an Account
+        </Link>
       </div>
     </div>
   );

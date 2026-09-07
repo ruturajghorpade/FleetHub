@@ -34,11 +34,19 @@ const branchCodeChain = (required = true) => {
 };
 
 const clientChain = () =>
-  body('client')
-    .notEmpty()
-    .withMessage('Client is required')
-    .isMongoId()
-    .withMessage('Client must be a valid ID');
+  body('client').custom((value, { req }) => {
+    if (!value && req.user?.role === 'client_admin' && req.user?.client) {
+      req.body.client = req.user.client.toString();
+      return true;
+    }
+    if (!value) {
+      throw new Error('Client is required');
+    }
+    if (!/^[0-9a-fA-F]{24}$/.test(value)) {
+      throw new Error('Client must be a valid ID');
+    }
+    return true;
+  });
 
 const emailChain = () =>
   body('email')

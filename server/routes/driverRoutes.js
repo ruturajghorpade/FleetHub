@@ -30,12 +30,12 @@ router.use(protect);
 router
   .route('/')
   .post(
-    authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.BRANCH_MANAGER),
+    authorize(ROLES.SUPER_ADMIN, ROLES.DISPATCHER),
     createDriverValidator,
     createDriver
   )
   .get(
-    authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.BRANCH_MANAGER, ROLES.DISPATCHER, ROLES.DRIVER),
+    authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.DISPATCHER, ROLES.DRIVER),
     getDrivers
   );
 
@@ -45,17 +45,17 @@ router
 router
   .route('/:id')
   .get(
-    authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.BRANCH_MANAGER, ROLES.DISPATCHER, ROLES.DRIVER),
+    authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.DISPATCHER, ROLES.DRIVER),
     driverIdValidator,
     getDriver
   )
   .put(
-    authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.BRANCH_MANAGER),
+    authorize(ROLES.SUPER_ADMIN, ROLES.DISPATCHER),
     updateDriverValidator,
     updateDriver
   )
   .delete(
-    authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.BRANCH_MANAGER),
+    authorize(ROLES.SUPER_ADMIN),
     driverIdValidator,
     deleteDriver
   );
@@ -66,7 +66,7 @@ router
 router
   .route('/:id/assign-vehicle')
   .patch(
-    authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.BRANCH_MANAGER),
+    authorize(ROLES.SUPER_ADMIN, ROLES.DISPATCHER),
     assignVehicleValidator,
     assignVehicle
   );
@@ -77,7 +77,7 @@ router
 router
   .route('/:id/remove-vehicle')
   .patch(
-    authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.BRANCH_MANAGER),
+    authorize(ROLES.SUPER_ADMIN, ROLES.DISPATCHER),
     driverIdValidator,
     removeAssignedVehicle
   );

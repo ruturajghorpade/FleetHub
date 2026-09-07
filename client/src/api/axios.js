@@ -1,6 +1,7 @@
 // FleetHub – Centralized Axios Client
 import axios from 'axios';
 import { showError } from '@/utils/toastUtils';
+import authStorage from '@/utils/auth';
 
 // Support VITE_API_URL, VITE_API_BASE_URL, or default to http://localhost:5000/api/v1
 const rawBaseUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api/v1';
@@ -18,7 +19,7 @@ const apiClient = axios.create({
 // Request Interceptor – automatically attach JWT
 apiClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = authStorage.getToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -42,9 +43,8 @@ apiClient.interceptors.response.use(
       'An unexpected error occurred';
 
     if (status === 401) {
-      // Clear token on 401 Unauthorized
-      localStorage.removeItem('token');
-      localStorage.removeItem('fleethub_user');
+      // Clear session on 401 Unauthorized
+      authStorage.clearAuth();
       if (window.location.pathname !== '/login') {
         window.location.href = '/login';
       }

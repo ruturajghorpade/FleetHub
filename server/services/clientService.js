@@ -1,13 +1,17 @@
 // FleetHub – Client Service (Business Logic)
 import Client from '../models/Client.js';
+import Branch from '../models/Branch.js';
 import ApiError from '../utils/apiError.js';
 import { getPagination, getPaginationMeta } from '../utils/pagination.js';
 import { cleanObject } from '../utils/helpers.js';
+import { ROLES } from '../utils/constants.js';
 
 // ════════════════════════════════════════
 // Create Client
 // ════════════════════════════════════════
-export const createClient = async (data, userId) => {
+export const createClient = async (data, user) => {
+  const userId = user?._id || user;
+
   // Check for duplicate companyCode
   const existingCode = await Client.findOne({ companyCode: data.companyCode.toUpperCase() });
   if (existingCode) {
@@ -32,11 +36,16 @@ export const createClient = async (data, userId) => {
 // ════════════════════════════════════════
 // Get All Clients (with search, filter, sort, pagination)
 // ════════════════════════════════════════
-export const getClients = async (query) => {
+export const getClients = async (query, user) => {
   const { page, limit, skip, sort } = getPagination(query);
 
   // Build filter
   const filter = {};
+
+  // ── Multi-Client Scoping ──────────────
+  if (user && user.role === ROLES.CLIENT_ADMIN) {
+    filter._id = user.client;
+  }
 
   // ── Text Search ──────────────────────
   if (query.search) {
@@ -51,6 +60,7 @@ export const getClients = async (query) => {
 
   // ── Field Filters ────────────────────
   if (query.status) filter.status = query.status;
+  if (query.businessType) filter.businessType = query.businessType.toUpperCase();
   if (query.city) filter.city = new RegExp(`^${query.city}$`, 'i');
   if (query.state) filter.state = new RegExp(`^${query.state}$`, 'i');
   if (query.country) filter.country = new RegExp(`^${query.country}$`, 'i');
@@ -75,7 +85,15 @@ export const getClients = async (query) => {
 // ════════════════════════════════════════
 // Get Client by ID
 // ════════════════════════════════════════
-export const getClientById = async (id) => {
+export const getClientById = async (id, user) => {
+  // Multi-client access check
+  if (user && user.role === ROLES.CLIENT_ADMIN) {
+    const userClientId = user.client?._id ? user.client._id.toString() : user.client?.toString();
+    if (id.toString() !== userClientId) {
+      throw ApiError.forbidden('You do not have permission to access this client');
+    }
+  }
+
   const client = await Client.findById(id)
     .populate('createdBy', 'name email')
     .populate('updatedBy', 'name email');
@@ -90,7 +108,25 @@ export const getClientById = async (id) => {
 // ════════════════════════════════════════
 // Update Client
 // ════════════════════════════════════════
-export const updateClient = async (id, data, userId) => {
+export const updateClient = async (id, data, user) => {
+  const userId = user?._id || user;
+
+  // Multi-client access check
+  if (user && user.role === ROLES.CLIENT_ADMIN) {
+    const userClientId = user.client?._id ? user.client._id.toString() : user.client?.toString();
+    if (id.toString() !== userClientId) {
+      throw ApiError.forbidden('You do not have permission to update this client');
+    }
+    // Prevent client admin from altering subscription or system limits
+    delete data.subscriptionPlan;
+    delete data.subscriptionStartDate;
+    delete data.subscriptionEndDate;
+    delete data.maxBranches;
+    delete data.maxVehicles;
+    delete data.maxUsers;
+    delete data.status;
+  }
+
   const client = await Client.findById(id);
 
   if (!client) {
@@ -136,9 +172,11 @@ export const updateClient = async (id, data, userId) => {
 };
 
 // ════════════════════════════════════════
-// Delete Client (Soft Delete)
+// Delete Client (Soft Delete with Orphan Branch Protection)
 // ════════════════════════════════════════
-export const deleteClient = async (id, userId) => {
+export const deleteClient = async (id, user) => {
+  const userId = user?._id || user;
+
   // Use select('+isDeleted') so we can see the field
   const client = await Client.findById(id).select('+isDeleted');
 
@@ -148,6 +186,15 @@ export const deleteClient = async (id, userId) => {
 
   if (client.isDeleted) {
     throw ApiError.notFound('Client not found');
+  }
+
+  // Check if client has active branches (Requirement 28)
+  const activeBranches = await Branch.countDocuments({
+    client: id,
+    isDeleted: { $ne: true },
+  });
+  if (activeBranches > 0) {
+    throw ApiError.badRequest('Cannot delete client because it has active branches');
   }
 
   // Soft delete: mark as deleted, don't remove from DB

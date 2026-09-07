@@ -1,11 +1,13 @@
-// FleetHub – Auth Context with Real Backend JWT Authentication
+// FleetHub – Auth Context with Real Backend JWT Authentication & RBAC
 import { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import authService from '@/services/authService';
+import authStorage from '@/utils/auth';
+import { canAccessRoute, hasAllowedRole } from '@/utils/permissions';
 import { showError, showSuccess } from '@/utils/toastUtils';
 
 const AuthContext = createContext();
 
-// Seeded account credentials mapped to each role for instant live switching
+// Seeded account credentials mapped to each role for rapid testing & switching
 export const ROLE_ACCOUNTS = {
   super_admin: {
     email: 'admin@fastfleet.in',
@@ -34,62 +36,37 @@ export const ROLE_ACCOUNTS = {
 };
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(() => {
-    try {
-      const saved = localStorage.getItem('fleethub_user');
-      return saved ? JSON.parse(saved) : null;
-    } catch {
-      return null;
-    }
-  });
-
-  const [activeRole, setActiveRole] = useState(() => {
-    return localStorage.getItem('fleethub_active_role') || user?.role || 'super_admin';
-  });
-
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    return !!localStorage.getItem('token');
-  });
-
+  const [user, setUser] = useState(() => authStorage.getUser());
+  const [activeRole, setActiveRole] = useState(() => authStorage.getActiveRole());
+  const [isAuthenticated, setIsAuthenticated] = useState(() => authStorage.hasToken());
   const [loading, setLoading] = useState(true);
 
   // Initialize: verify token with backend on mount
   useEffect(() => {
     const initAuth = async () => {
-      const token = localStorage.getItem('token');
+      const token = authStorage.getToken();
       if (!token) {
-        // If no token exists initially, auto-login as default super_admin for smooth initial presentation
-        try {
-          const creds = ROLE_ACCOUNTS.super_admin;
-          const data = await authService.login(creds);
-          localStorage.setItem('token', data.accessToken);
-          localStorage.setItem('fleethub_user', JSON.stringify(data.user));
-          localStorage.setItem('fleethub_active_role', data.user.role);
-          setUser(data.user);
-          setActiveRole(data.user.role);
-          setIsAuthenticated(true);
-        } catch {
-          setUser(null);
-          setIsAuthenticated(false);
-        } finally {
-          setLoading(false);
-        }
+        // No token present -> user is unauthenticated
+        authStorage.clearAuth();
+        setUser(null);
+        setIsAuthenticated(false);
+        setLoading(false);
         return;
       }
 
       try {
         const res = await authService.getMe();
         if (res?.user) {
+          authStorage.setUser(res.user);
           setUser(res.user);
           setActiveRole(res.user.role);
           setIsAuthenticated(true);
-          localStorage.setItem('fleethub_user', JSON.stringify(res.user));
-          localStorage.setItem('fleethub_active_role', res.user.role);
+        } else {
+          throw new Error('No user data returned');
         }
       } catch {
-        // Token expired or invalid
-        localStorage.removeItem('token');
-        localStorage.removeItem('fleethub_user');
+        // Token expired, revoked, or invalid
+        authStorage.clearAuth();
         setUser(null);
         setIsAuthenticated(false);
       } finally {
@@ -107,16 +84,18 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     try {
       const data = await authService.login(credentials);
-      localStorage.setItem('token', data.accessToken);
-      localStorage.setItem('fleethub_user', JSON.stringify(data.user));
-      localStorage.setItem('fleethub_active_role', data.user.role);
+      authStorage.setToken(data.accessToken);
+      authStorage.setUser(data.user);
       setUser(data.user);
       setActiveRole(data.user.role);
       setIsAuthenticated(true);
       showSuccess(`Welcome back, ${data.user.name}!`);
       return { success: true, user: data.user };
     } catch (err) {
-      const msg = err.response?.data?.message || 'Invalid email or password';
+      const msg =
+        err.response?.data?.message ||
+        err.response?.data?.errors?.[0]?.msg ||
+        (err.request && !err.response ? 'Unable to connect to server. Please try again.' : 'Invalid email or password');
       showError(msg);
       return { success: false, error: msg };
     } finally {
@@ -137,15 +116,15 @@ export const AuthProvider = ({ children }) => {
         email: account.email,
         password: account.password,
       });
-      localStorage.setItem('token', data.accessToken);
-      localStorage.setItem('fleethub_user', JSON.stringify(data.user));
-      localStorage.setItem('fleethub_active_role', data.user.role);
+      authStorage.setToken(data.accessToken);
+      authStorage.setUser(data.user);
       setUser(data.user);
       setActiveRole(data.user.role);
       setIsAuthenticated(true);
       showSuccess(`Switched to ${account.roleTitle} (${data.user.name})`);
-    } catch {
-      showError(`Failed to switch to ${newRole}`);
+    } catch (err) {
+      const msg = err.response?.data?.message || `Failed to switch to ${newRole}`;
+      showError(msg);
     } finally {
       setLoading(false);
     }
@@ -156,10 +135,34 @@ export const AuthProvider = ({ children }) => {
    */
   const logout = useCallback(async () => {
     await authService.logout();
+    authStorage.clearAuth();
     setUser(null);
     setIsAuthenticated(false);
     showSuccess('Logged out successfully');
   }, []);
+
+  /**
+   * Check if current user has a specific role or one of multiple roles
+   */
+  const hasRole = useCallback(
+    (roleOrRoles) => {
+      if (!user?.role) return false;
+      const allowed = Array.isArray(roleOrRoles) ? roleOrRoles : [roleOrRoles];
+      return hasAllowedRole(user.role, allowed);
+    },
+    [user]
+  );
+
+  /**
+   * Check if current user has permission for a specific route or action
+   */
+  const hasPermission = useCallback(
+    (routeOrAction) => {
+      if (!user?.role) return false;
+      return canAccessRoute(user.role, routeOrAction);
+    },
+    [user]
+  );
 
   return (
     <AuthContext.Provider
@@ -169,8 +172,11 @@ export const AuthProvider = ({ children }) => {
         switchRole,
         isAuthenticated,
         loading,
+        isLoading: loading,
         login,
         logout,
+        hasRole,
+        hasPermission,
       }}
     >
       {children}

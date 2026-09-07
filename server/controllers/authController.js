@@ -2,19 +2,21 @@
 import * as authService from '../services/authService.js';
 import ApiResponse from '../utils/apiResponse.js';
 import asyncHandler from '../utils/asyncHandler.js';
+import { ROLES } from '../utils/constants.js';
 
 // ════════════════════════════════════════
 // POST /api/v1/auth/register
 // ════════════════════════════════════════
 export const register = asyncHandler(async (req, res) => {
-  const { name, email, phone, password, role } = req.body;
+  const { name, email, phone, password } = req.body;
+
+  // Enforce safe default role for public registration (prevent privilege escalation)
+  const role = ROLES.CLIENT_ADMIN;
 
   const result = await authService.register({ name, email, phone, password, role });
 
   return ApiResponse.created(res, 'User registered successfully', {
     user: result.user,
-    accessToken: result.accessToken,
-    refreshToken: result.refreshToken,
   });
 });
 

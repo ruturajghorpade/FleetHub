@@ -1,4 +1,4 @@
-// FleetHub – Application Router
+// FleetHub – Application Router with RBAC Guards
 import { Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import MainLayout from '@/components/layout/MainLayout';
@@ -6,6 +6,7 @@ import AuthLayout from '@/components/layout/AuthLayout';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
 import Loader from '@/components/common/Loader';
 import PrivateRoute from './PrivateRoute';
+import RoleRoute from './RoleRoute';
 import { appRoutes, authRoutes, errorRoutes } from './routes';
 
 const AppRouter = () => {
@@ -21,14 +22,25 @@ const AppRouter = () => {
               </PrivateRoute>
             }
           >
-            {appRoutes.map((route) => (
-              <Route
-                key={route.path}
-                path={route.path}
-                index={route.path === '/'}
-                element={<route.element />}
-              />
-            ))}
+            {appRoutes.map((route) => {
+              const Component = route.element;
+              const content = route.allowedRoles?.length > 0 ? (
+                <RoleRoute allowedRoles={route.allowedRoles}>
+                  <Component />
+                </RoleRoute>
+              ) : (
+                <Component />
+              );
+
+              return (
+                <Route
+                  key={route.path}
+                  path={route.path}
+                  index={route.path === '/'}
+                  element={content}
+                />
+              );
+            })}
           </Route>
 
           {/* Auth routes (login, etc.) */}

@@ -22,8 +22,9 @@ export const registerValidator = [
     .normalizeEmail(),
 
   body('phone')
-    .optional()
+    .optional({ checkFalsy: true })
     .trim()
+    .customSanitizer((v) => (typeof v === 'string' ? v.replace(/[\s-]/g, '') : v))
     .isMobilePhone('any', { strictMode: false })
     .withMessage('Please provide a valid phone number'),
 
@@ -38,6 +39,16 @@ export const registerValidator = [
     .withMessage('Password must contain at least one lowercase letter')
     .matches(/\d/)
     .withMessage('Password must contain at least one number'),
+
+  body('confirmPassword')
+    .notEmpty()
+    .withMessage('Please confirm your password')
+    .custom((value, { req }) => {
+      if (value !== req.body.password) {
+        throw new Error('Passwords do not match');
+      }
+      return true;
+    }),
 
   validate,
 ];

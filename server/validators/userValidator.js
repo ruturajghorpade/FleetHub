@@ -62,7 +62,7 @@ const passwordChain = (required = true) => {
 };
 
 const roleChain = (required = true) => {
-  const chain = body('role');
+  const chain = body('role').customSanitizer((v) => (typeof v === 'string' ? v.toLowerCase() : v));
   if (required) {
     return chain
       .notEmpty()

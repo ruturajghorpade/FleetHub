@@ -132,7 +132,7 @@ const clientSchema = new mongoose.Schema(
     // ── Usage Limits ────────────────────────
     maxBranches: {
       type: Number,
-      default: 1,
+      default: 20,
       min: [1, 'Must allow at least 1 branch'],
     },
 

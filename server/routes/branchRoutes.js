@@ -31,14 +31,21 @@ router
     createBranchValidator,
     createBranch
   )
-  .get(getBranches);
+  .get(
+    authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.DISPATCHER),
+    getBranches
+  );
 
 // ════════════════════════════════════════
 // /api/v1/branches/:id
 // ════════════════════════════════════════
 router
   .route('/:id')
-  .get(branchIdValidator, getBranch)
+  .get(
+    authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.DISPATCHER),
+    branchIdValidator,
+    getBranch
+  )
   .put(
     authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN),
     updateBranchValidator,

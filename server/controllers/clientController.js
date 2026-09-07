@@ -16,7 +16,7 @@ export const createClient = asyncHandler(async (req, res) => {
 // GET /api/v1/clients
 // ════════════════════════════════════════
 export const getClients = asyncHandler(async (req, res) => {
-  const { clients, meta } = await clientService.getClients(req.query);
+  const { clients, meta } = await clientService.getClients(req.query, req.user);
 
   return ApiResponse.ok(res, 'Clients retrieved successfully', { clients }, meta);
 });
@@ -25,7 +25,7 @@ export const getClients = asyncHandler(async (req, res) => {
 // GET /api/v1/clients/:id
 // ════════════════════════════════════════
 export const getClient = asyncHandler(async (req, res) => {
-  const client = await clientService.getClientById(req.params.id);
+  const client = await clientService.getClientById(req.params.id, req.user);
 
   return ApiResponse.ok(res, 'Client retrieved successfully', { client });
 });
@@ -34,7 +34,7 @@ export const getClient = asyncHandler(async (req, res) => {
 // PUT /api/v1/clients/:id
 // ════════════════════════════════════════
 export const updateClient = asyncHandler(async (req, res) => {
-  const client = await clientService.updateClient(req.params.id, req.body, req.user._id);
+  const client = await clientService.updateClient(req.params.id, req.body, req.user);
 
   return ApiResponse.ok(res, 'Client updated successfully', { client });
 });
@@ -43,7 +43,7 @@ export const updateClient = asyncHandler(async (req, res) => {
 // DELETE /api/v1/clients/:id
 // ════════════════════════════════════════
 export const deleteClient = asyncHandler(async (req, res) => {
-  await clientService.deleteClient(req.params.id, req.user._id);
+  await clientService.deleteClient(req.params.id, req.user);
 
   return ApiResponse.ok(res, 'Client deleted successfully');
 });

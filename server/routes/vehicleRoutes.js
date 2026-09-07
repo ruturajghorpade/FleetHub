@@ -27,12 +27,12 @@ router.use(protect);
 router
   .route('/')
   .post(
-    authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.BRANCH_MANAGER),
+    authorize(ROLES.SUPER_ADMIN, ROLES.DISPATCHER),
     createVehicleValidator,
     createVehicle
   )
   .get(
-    authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.BRANCH_MANAGER, ROLES.DISPATCHER, ROLES.DRIVER),
+    authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.DISPATCHER, ROLES.DRIVER),
     getVehicles
   );
 
@@ -42,17 +42,17 @@ router
 router
   .route('/:id')
   .get(
-    authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.BRANCH_MANAGER, ROLES.DISPATCHER, ROLES.DRIVER),
+    authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.DISPATCHER, ROLES.DRIVER),
     vehicleIdValidator,
     getVehicle
   )
   .put(
-    authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.BRANCH_MANAGER),
+    authorize(ROLES.SUPER_ADMIN, ROLES.DISPATCHER),
     updateVehicleValidator,
     updateVehicle
   )
   .delete(
-    authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.BRANCH_MANAGER),
+    authorize(ROLES.SUPER_ADMIN),
     vehicleIdValidator,
     deleteVehicle
   );

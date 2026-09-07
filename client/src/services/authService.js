@@ -1,5 +1,6 @@
 // FleetHub – Authentication Service
 import api from '@/api/axios';
+import authStorage from '@/utils/auth';
 
 export const authService = {
   /**
@@ -31,9 +32,7 @@ export const authService = {
     } catch {
       // Ignore errors on logout
     } finally {
-      localStorage.removeItem('token');
-      localStorage.removeItem('fleethub_user');
-      localStorage.removeItem('fleethub_active_role');
+      authStorage.clearAuth();
     }
   },
 
