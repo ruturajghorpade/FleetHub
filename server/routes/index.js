@@ -9,6 +9,9 @@ import vehicleRoutes from './vehicleRoutes.js';
 import driverRoutes from './driverRoutes.js';
 import deliveryRoutes from './deliveryRoutes.js';
 import reportRoutes from './reportRoutes.js';
+import dashboardRoutes from './dashboardRoutes.js';
+import notificationRoutes from './notificationRoutes.js';
+import maintenanceRoutes from './maintenanceRoutes.js';
 
 const router = express.Router();
 
@@ -29,6 +32,7 @@ router.get('/health', (_req, res) => {
 // Module Routes
 // ════════════════════════════════════════
 router.use('/auth', authRoutes);
+router.use('/dashboard', dashboardRoutes);
 router.use('/clients', clientRoutes);
 router.use('/branches', branchRoutes);
 router.use('/users', userRoutes);
@@ -36,5 +40,7 @@ router.use('/vehicles', vehicleRoutes);
 router.use('/drivers', driverRoutes);
 router.use('/deliveries', deliveryRoutes);
 router.use('/reports', reportRoutes);
+router.use('/notifications', notificationRoutes);
+router.use('/maintenance', maintenanceRoutes);
 
 export default router;

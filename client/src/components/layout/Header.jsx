@@ -10,6 +10,8 @@ import {
   HiOutlineUserCircle,
   HiOutlineCog6Tooth,
 } from 'react-icons/hi2';
+import { useNavigate } from 'react-router-dom';
+import ROUTES from '@/config/routeConfig';
 import { useSidebar } from '@/context/SidebarContext';
 import { useTheme } from '@/context/ThemeContext';
 import { useAuth } from '@/context/AuthContext';
@@ -17,6 +19,7 @@ import { getInitials } from '@/utils/helpers';
 import Dropdown from '@/components/common/Dropdown';
 
 const Header = () => {
+  const navigate = useNavigate();
   const { toggleSidebar, toggleMobileSidebar } = useSidebar();
   const { mode, toggleTheme } = useTheme();
   const { user, activeRole, switchRole, logout } = useAuth();
@@ -116,8 +119,10 @@ const Header = () => {
 
         {/* Notifications */}
         <button
+          onClick={() => navigate(ROUTES.NOTIFICATIONS)}
           className="relative p-2 rounded-lg text-[#A3A3A3] hover:text-white hover:bg-[#242424] transition-colors"
           aria-label="Notifications"
+          title="Notifications & Alerts"
         >
           <HiOutlineBell className="w-5 h-5" />
           <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-amber-500 rounded-full ring-2 ring-[#111111]" />
@@ -159,10 +164,10 @@ const Header = () => {
                 </p>
               </div>
 
-              <Dropdown.Item icon={HiOutlineUserCircle} onClick={() => close()}>
+              <Dropdown.Item icon={HiOutlineUserCircle} onClick={() => { close(); navigate(ROUTES.SETTINGS); }}>
                 Profile
               </Dropdown.Item>
-              <Dropdown.Item icon={HiOutlineCog6Tooth} onClick={() => close()}>
+              <Dropdown.Item icon={HiOutlineCog6Tooth} onClick={() => { close(); navigate(ROUTES.SETTINGS); }}>
                 Settings
               </Dropdown.Item>
               <Dropdown.Divider />

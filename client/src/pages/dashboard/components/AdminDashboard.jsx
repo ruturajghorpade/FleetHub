@@ -1,4 +1,5 @@
 // FleetHub – Super Admin Dashboard (Food Delivery Logistics HQ)
+import { useState, useEffect } from 'react';
 import {
   HiOutlineShoppingBag,
   HiOutlineClock,
@@ -6,15 +7,14 @@ import {
   HiOutlineXCircle,
   HiOutlineUserGroup,
   HiOutlineTruck,
-  HiOutlineBuildingStorefront,
   HiOutlineArrowTrendingUp,
 } from 'react-icons/hi2';
 import Card from '@/components/common/Card';
 import Badge from '@/components/common/Badge';
-import StatusBadge from '@/components/common/StatusBadge';
 import RevenueChart from './RevenueChart';
 import FleetOverview from './FleetOverview';
 import RecentDeliveries from './RecentDeliveries';
+import dashboardService from '@/services/dashboardService';
 import {
   DASHBOARD_STATS,
   RESTAURANT_ORDERS_DATA,
@@ -22,78 +22,89 @@ import {
 } from '@/data/mockData';
 
 const AdminDashboard = () => {
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDashboard = async () => {
+      try {
+        const data = await dashboardService.getStats();
+        setStats(data);
+      } catch {
+        // Fallback to default stats if offline
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDashboard();
+  }, []);
+
+  const kpiData = stats?.kpis || DASHBOARD_STATS;
+
   const kpis = [
     {
       id: 'today-orders',
       label: "Today's Orders",
-      value: DASHBOARD_STATS.todayOrders,
+      value: kpiData.todayOrders ?? DASHBOARD_STATS.todayOrders,
       icon: HiOutlineShoppingBag,
       change: '+14% vs avg',
       isUp: true,
-      color: 'bg-primary-50 dark:bg-primary-950/40 text-primary-600 dark:text-primary-400',
     },
     {
       id: 'pending-orders',
       label: 'Pending Orders',
-      value: DASHBOARD_STATS.pendingOrders,
+      value: kpiData.pendingOrders ?? DASHBOARD_STATS.pendingOrders,
       icon: HiOutlineClock,
       change: 'Awaiting dispatch',
       isUp: false,
-      color: 'bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400',
     },
     {
       id: 'completed-orders',
       label: 'Completed Orders',
-      value: DASHBOARD_STATS.completedOrders,
+      value: kpiData.completedOrders ?? DASHBOARD_STATS.completedOrders,
       icon: HiOutlineCheckCircle,
-      change: `${DASHBOARD_STATS.onTimeDeliveryRate} on-time`,
+      change: `${kpiData.onTimeDeliveryRate || '98%'} on-time`,
       isUp: true,
-      color: 'bg-green-50 dark:bg-green-950/40 text-green-600 dark:text-green-400',
     },
     {
       id: 'cancelled-orders',
       label: 'Cancelled Orders',
-      value: DASHBOARD_STATS.cancelledOrders,
+      value: kpiData.cancelledOrders ?? DASHBOARD_STATS.cancelledOrders,
       icon: HiOutlineXCircle,
       change: 'Pre-pickup',
       isUp: false,
-      color: 'bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400',
     },
     {
       id: 'available-drivers',
       label: 'Available Drivers',
-      value: DASHBOARD_STATS.availableDrivers,
+      value: kpiData.availableDrivers ?? DASHBOARD_STATS.availableDrivers,
       icon: HiOutlineUserGroup,
       change: 'Ready for orders',
       isUp: true,
-      color: 'bg-cyan-50 dark:bg-cyan-950/40 text-cyan-600 dark:text-cyan-400',
     },
     {
       id: 'busy-drivers',
-      label: 'Busy Drivers',
-      value: DASHBOARD_STATS.busyDrivers,
-      icon: HiOutlineUserGroup,
+      label: 'Active Deliveries',
+      value: kpiData.activeDeliveries ?? DASHBOARD_STATS.busyDrivers,
+      icon: HiOutlineArrowTrendingUp,
       change: 'On delivery route',
       isUp: true,
-      color: 'bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400',
     },
     {
       id: 'available-bikes',
       label: 'Available Vehicles',
-      value: DASHBOARD_STATS.availableVehicles,
+      value: kpiData.availableVehicles ?? DASHBOARD_STATS.availableVehicles,
       icon: HiOutlineTruck,
       change: 'Bikes & EV Bikes',
       isUp: true,
-      color: 'bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400',
     },
     {
-      id: 'vehicles-on-delivery',
-      label: 'Vehicles On Delivery',
-      value: DASHBOARD_STATS.vehiclesOnDelivery,
+      id: 'maintenance-alerts',
+      label: 'Maintenance Alerts',
+      value: kpiData.maintenanceAlerts ?? 1,
       icon: HiOutlineTruck,
-      change: 'Active in transit',
-      isUp: true,
-      color: 'bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400',
+      change: 'Fleet Service',
+      isUp: false,
     },
   ];
 
@@ -236,7 +247,7 @@ const AdminDashboard = () => {
       </section>
 
       {/* Live Recent Deliveries */}
-      <RecentDeliveries />
+      <RecentDeliveries deliveries={stats?.recentDeliveries} />
     </div>
   );
 };

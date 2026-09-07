@@ -77,7 +77,6 @@ const vehicleSchema = new mongoose.Schema(
       trim: true,
       uppercase: true,
       maxlength: [50, 'Engine number must not exceed 50 characters'],
-      default: null,
     },
 
     chassisNumber: {
@@ -85,7 +84,6 @@ const vehicleSchema = new mongoose.Schema(
       trim: true,
       uppercase: true,
       maxlength: [50, 'Chassis number must not exceed 50 characters'],
-      default: null,
     },
 
     // ── Operational ────────────────────────

@@ -1,103 +1,164 @@
-// FleetHub – Auth Context (Food Delivery Logistics Multi-Role Simulation)
+// FleetHub – Auth Context with Real Backend JWT Authentication
 import { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import authService from '@/services/authService';
+import { showError, showSuccess } from '@/utils/toastUtils';
 
 const AuthContext = createContext();
 
-export const DEMO_PROFILES = {
+// Seeded account credentials mapped to each role for instant live switching
+export const ROLE_ACCOUNTS = {
   super_admin: {
-    _id: 'user-001',
-    name: 'Vikram Malhotra',
     email: 'admin@fastfleet.in',
-    role: 'super_admin',
+    password: 'Password@123',
     roleTitle: 'Super Admin',
     organization: 'FastFleet Logistics HQ',
-    avatar: null,
   },
   client_admin: {
-    _id: 'user-002',
-    name: 'Sanjay Rawat',
     email: 'manager@dominos.in',
-    role: 'client_admin',
+    password: 'Password@123',
     roleTitle: "Domino's Store Admin",
     organization: "Domino's Pizza (Indiranagar)",
-    client: {
-      _id: 'c001',
-      name: "Domino's Pizza",
-      companyName: "Domino's Pizza",
-      businessType: 'RESTAURANT',
-      address: '100ft Road, Indiranagar',
-    },
-    avatar: null,
   },
   dispatcher: {
-    _id: 'user-003',
-    name: 'Kavita Joshi',
     email: 'dispatch@fastfleet.in',
-    role: 'dispatcher',
+    password: 'Password@123',
     roleTitle: 'Chief Dispatcher',
     organization: 'FastFleet Central Dispatch',
-    hub: 'Bengaluru East Hub',
-    avatar: null,
   },
   driver: {
-    _id: 'user-004',
-    driverId: 'd001',
-    name: 'Rajesh Kumar',
     email: 'rajesh.rider@fastfleet.in',
-    role: 'driver',
+    password: 'Password@123',
     roleTitle: 'Delivery Partner',
     organization: 'FastFleet Logistics',
-    phone: '+91 98765 43210',
-    vehicle: 'KA01EF1010',
-    vehicleModel: 'Ather 450X (EV Bike)',
-    avatar: null,
   },
 };
 
-const STORAGE_KEY = 'fleethub_active_role';
-
 export const AuthProvider = ({ children }) => {
-  const [activeRole, setActiveRole] = useState(() => {
-    return localStorage.getItem(STORAGE_KEY) || 'super_admin';
+  const [user, setUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem('fleethub_user');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
   });
 
-  const [user, setUser] = useState(DEMO_PROFILES[activeRole] || DEMO_PROFILES.super_admin);
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
-  const [loading, setLoading] = useState(false);
+  const [activeRole, setActiveRole] = useState(() => {
+    return localStorage.getItem('fleethub_active_role') || user?.role || 'super_admin';
+  });
 
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return !!localStorage.getItem('token');
+  });
+
+  const [loading, setLoading] = useState(true);
+
+  // Initialize: verify token with backend on mount
   useEffect(() => {
-    const profile = DEMO_PROFILES[activeRole] || DEMO_PROFILES.super_admin;
-    setUser(profile);
-    localStorage.setItem(STORAGE_KEY, activeRole);
-  }, [activeRole]);
+    const initAuth = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        // If no token exists initially, auto-login as default super_admin for smooth initial presentation
+        try {
+          const creds = ROLE_ACCOUNTS.super_admin;
+          const data = await authService.login(creds);
+          localStorage.setItem('token', data.accessToken);
+          localStorage.setItem('fleethub_user', JSON.stringify(data.user));
+          localStorage.setItem('fleethub_active_role', data.user.role);
+          setUser(data.user);
+          setActiveRole(data.user.role);
+          setIsAuthenticated(true);
+        } catch {
+          setUser(null);
+          setIsAuthenticated(false);
+        } finally {
+          setLoading(false);
+        }
+        return;
+      }
 
-  const switchRole = useCallback((newRole) => {
-    if (DEMO_PROFILES[newRole]) {
-      setActiveRole(newRole);
+      try {
+        const res = await authService.getMe();
+        if (res?.user) {
+          setUser(res.user);
+          setActiveRole(res.user.role);
+          setIsAuthenticated(true);
+          localStorage.setItem('fleethub_user', JSON.stringify(res.user));
+          localStorage.setItem('fleethub_active_role', res.user.role);
+        }
+      } catch {
+        // Token expired or invalid
+        localStorage.removeItem('token');
+        localStorage.removeItem('fleethub_user');
+        setUser(null);
+        setIsAuthenticated(false);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initAuth();
+  }, []);
+
+  /**
+   * Log in user with email & password against Express backend
+   */
+  const login = useCallback(async (credentials) => {
+    setLoading(true);
+    try {
+      const data = await authService.login(credentials);
+      localStorage.setItem('token', data.accessToken);
+      localStorage.setItem('fleethub_user', JSON.stringify(data.user));
+      localStorage.setItem('fleethub_active_role', data.user.role);
+      setUser(data.user);
+      setActiveRole(data.user.role);
+      setIsAuthenticated(true);
+      showSuccess(`Welcome back, ${data.user.name}!`);
+      return { success: true, user: data.user };
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Invalid email or password';
+      showError(msg);
+      return { success: false, error: msg };
+    } finally {
+      setLoading(false);
     }
   }, []);
 
-  const login = useCallback((credentials) => {
+  /**
+   * Live role switcher: logs in to backend as that role's real account
+   */
+  const switchRole = useCallback(async (newRole) => {
+    const account = ROLE_ACCOUNTS[newRole];
+    if (!account) return;
+
     setLoading(true);
-    setTimeout(() => {
-      // If logging in as client, set client_admin
-      if (credentials?.email?.includes('dominos') || credentials?.email?.includes('client')) {
-        setActiveRole('client_admin');
-      } else if (credentials?.email?.includes('dispatch')) {
-        setActiveRole('dispatcher');
-      } else if (credentials?.email?.includes('rider') || credentials?.email?.includes('driver')) {
-        setActiveRole('driver');
-      } else {
-        setActiveRole('super_admin');
-      }
+    try {
+      const data = await authService.login({
+        email: account.email,
+        password: account.password,
+      });
+      localStorage.setItem('token', data.accessToken);
+      localStorage.setItem('fleethub_user', JSON.stringify(data.user));
+      localStorage.setItem('fleethub_active_role', data.user.role);
+      setUser(data.user);
+      setActiveRole(data.user.role);
       setIsAuthenticated(true);
+      showSuccess(`Switched to ${account.roleTitle} (${data.user.name})`);
+    } catch {
+      showError(`Failed to switch to ${newRole}`);
+    } finally {
       setLoading(false);
-    }, 400);
+    }
   }, []);
 
-  const logout = useCallback(() => {
+  /**
+   * Log out
+   */
+  const logout = useCallback(async () => {
+    await authService.logout();
     setUser(null);
     setIsAuthenticated(false);
+    showSuccess('Logged out successfully');
   }, []);
 
   return (
