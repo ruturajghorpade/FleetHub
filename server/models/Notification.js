@@ -17,7 +17,20 @@ const notificationSchema = new mongoose.Schema(
 
     type: {
       type: String,
-      enum: ['ASSIGNMENT', 'CANCELLATION', 'STATUS_UPDATE', 'ALERT'],
+      enum: [
+        'DELIVERY_ASSIGNED',
+        'DELIVERY_PICKED_UP',
+        'DELIVERY_IN_TRANSIT',
+        'DELIVERY_DELIVERED',
+        'DELIVERY_CANCELLED',
+        'MAINTENANCE_ALERT',
+        'DRIVER_ASSIGNMENT',
+        'SYSTEM_ALERT',
+        'ASSIGNMENT',
+        'CANCELLATION',
+        'STATUS_UPDATE',
+        'ALERT',
+      ],
       required: true,
     },
 
@@ -39,6 +52,29 @@ const notificationSchema = new mongoose.Schema(
       default: null,
     },
 
+    client: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Client',
+      default: null,
+    },
+
+    branch: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Branch',
+      default: null,
+    },
+
+    relatedEntity: {
+      type: String,
+      enum: ['delivery', 'vehicle', 'driver', 'maintenance', 'system'],
+      default: 'delivery',
+    },
+
+    relatedEntityId: {
+      type: mongoose.Schema.Types.ObjectId,
+      default: null,
+    },
+
     isRead: {
       type: Boolean,
       default: false,
@@ -49,14 +85,17 @@ const notificationSchema = new mongoose.Schema(
     toJSON: {
       transform(_doc, ret) {
         delete ret.__v;
+        ret.read = ret.isRead;
         return ret;
       },
     },
   }
 );
 
-notificationSchema.index({ recipient: 1, isRead: 1 });
+notificationSchema.index({ recipient: 1, isRead: 1, createdAt: -1 });
+notificationSchema.index({ client: 1, targetRole: 1, createdAt: -1 });
 notificationSchema.index({ targetRole: 1, createdAt: -1 });
+notificationSchema.index({ createdAt: -1 });
 
 const Notification = mongoose.model('Notification', notificationSchema);
 

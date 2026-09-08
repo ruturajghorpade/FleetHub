@@ -8,7 +8,7 @@ import { env } from './env.js';
  */
 export const rateLimiter = rateLimit({
   windowMs: env.RATE_LIMIT_WINDOW_MS,
-  max: env.RATE_LIMIT_MAX,
+  max: env.NODE_ENV === 'development' ? 5000 : env.RATE_LIMIT_MAX,
   message: {
     success: false,
     message: 'Too many requests from this IP. Please try again later.',
