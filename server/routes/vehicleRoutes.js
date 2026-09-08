@@ -3,6 +3,7 @@ import express from 'express';
 import {
   createVehicle,
   getVehicles,
+  getAvailableVehicles,
   getVehicle,
   updateVehicle,
   deleteVehicle,
@@ -27,13 +28,23 @@ router.use(protect);
 router
   .route('/')
   .post(
-    authorize(ROLES.SUPER_ADMIN, ROLES.DISPATCHER),
+    authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.DISPATCHER),
     createVehicleValidator,
     createVehicle
   )
   .get(
     authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.DISPATCHER, ROLES.DRIVER),
     getVehicles
+  );
+
+// ════════════════════════════════════════
+// /api/v1/vehicles/available
+// ════════════════════════════════════════
+router
+  .route('/available')
+  .get(
+    authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.DISPATCHER),
+    getAvailableVehicles
   );
 
 // ════════════════════════════════════════
@@ -47,12 +58,12 @@ router
     getVehicle
   )
   .put(
-    authorize(ROLES.SUPER_ADMIN, ROLES.DISPATCHER),
+    authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.DISPATCHER),
     updateVehicleValidator,
     updateVehicle
   )
   .delete(
-    authorize(ROLES.SUPER_ADMIN),
+    authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN),
     vehicleIdValidator,
     deleteVehicle
   );

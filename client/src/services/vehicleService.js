@@ -44,6 +44,14 @@ export const vehicleService = {
     const res = await api.delete(`/vehicles/${id}`);
     return res.data;
   },
+
+  /**
+   * Get available vehicles for delivery assignment
+   */
+  getAvailableVehicles: async (params = {}) => {
+    const res = await api.get('/vehicles/available', { params });
+    return res.data?.vehicles || [];
+  },
 };
 
 export default vehicleService;

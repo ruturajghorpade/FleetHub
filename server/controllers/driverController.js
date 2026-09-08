@@ -22,6 +22,15 @@ export const getDrivers = asyncHandler(async (req, res) => {
 });
 
 // ════════════════════════════════════════
+// GET /api/v1/drivers/available
+// ════════════════════════════════════════
+export const getAvailableDrivers = asyncHandler(async (req, res) => {
+  const drivers = await driverService.getAvailableDrivers(req.query, req.user);
+
+  return ApiResponse.ok(res, 'Available drivers retrieved successfully', { drivers });
+});
+
+// ════════════════════════════════════════
 // GET /api/v1/drivers/:id
 // ════════════════════════════════════════
 export const getDriver = asyncHandler(async (req, res) => {

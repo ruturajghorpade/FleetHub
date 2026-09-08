@@ -35,6 +35,11 @@ export const validateCreateDelivery = [
     .isMongoId()
     .withMessage('Client must be a valid ID'),
 
+  body('branch')
+    .optional({ values: 'falsy' })
+    .isMongoId()
+    .withMessage('Branch must be a valid ID'),
+
   validate,
 ];
 
@@ -64,10 +69,11 @@ export const validateCancelDelivery = [
     .withMessage('Invalid delivery ID'),
 
   body('reason')
-    .optional()
     .trim()
-    .isLength({ max: 500 })
-    .withMessage('Cancellation reason must not exceed 500 characters'),
+    .notEmpty()
+    .withMessage('Cancellation reason is required')
+    .isLength({ min: 3, max: 500 })
+    .withMessage('Cancellation reason must be between 3 and 500 characters'),
 
   validate,
 ];

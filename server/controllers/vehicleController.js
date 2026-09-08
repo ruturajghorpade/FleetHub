@@ -22,6 +22,15 @@ export const getVehicles = asyncHandler(async (req, res) => {
 });
 
 // ════════════════════════════════════════
+// GET /api/v1/vehicles/available
+// ════════════════════════════════════════
+export const getAvailableVehicles = asyncHandler(async (req, res) => {
+  const vehicles = await vehicleService.getAvailableVehicles(req.query, req.user);
+
+  return ApiResponse.ok(res, 'Available vehicles retrieved successfully', { vehicles });
+});
+
+// ════════════════════════════════════════
 // GET /api/v1/vehicles/:id
 // ════════════════════════════════════════
 export const getVehicle = asyncHandler(async (req, res) => {

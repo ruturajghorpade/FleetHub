@@ -7,7 +7,13 @@ import {
   HiOutlineTrash,
   HiOutlineTruck,
   HiOutlineBolt,
-  HiOutlineFunnel,
+  HiOutlineEye,
+  HiOutlineUser,
+  HiOutlineBuildingOffice2,
+  HiOutlineMapPin,
+  HiOutlineClock,
+  HiOutlineCheckCircle,
+  HiOutlineWrenchScrewdriver,
 } from 'react-icons/hi2';
 import PageHeader from '@/components/layout/PageHeader';
 import Card from '@/components/common/Card';
@@ -29,10 +35,14 @@ const VehicleListPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [availabilityFilter, setAvailabilityFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
+  const [clientFilter, setClientFilter] = useState('all');
+  const [branchFilter, setBranchFilter] = useState('all');
 
   // Modals
   const [modalOpen, setModalOpen] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState(null);
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [vehicleToDelete, setVehicleToDelete] = useState(null);
   const [submitting, setSubmitting] = useState(false);
@@ -49,6 +59,7 @@ const VehicleListPage = () => {
     engineNumber: '',
     chassisNumber: '',
     availability: 'AVAILABLE',
+    status: 'available',
     odometer: 0,
   });
 
@@ -61,17 +72,24 @@ const VehicleListPage = () => {
         branchService.getBranches({ limit: 50 }),
       ]);
       setVehicles(vehRes.vehicles || []);
-      setClients(cliRes.clients || []);
-      setBranches(braRes.branches || []);
+      const loadedClients = cliRes.clients || [];
+      const loadedBranches = braRes.branches || [];
+      setClients(loadedClients);
+      setBranches(loadedBranches);
 
-      if (cliRes.clients?.length > 0 && braRes.branches?.length > 0) {
+      if (loadedClients.length > 0) {
+        const firstClientId = loadedClients[0]._id;
+        const matchingBranch = loadedBranches.find(
+          (b) => (b.client?._id || b.client) === firstClientId
+        );
         setFormData((prev) => ({
           ...prev,
-          client: cliRes.clients[0]._id,
-          branch: braRes.branches[0]._id,
+          client: firstClientId,
+          branch: matchingBranch?._id || loadedBranches[0]?._id || '',
         }));
       }
-    } catch {
+    } catch (err) {
+      showError(err.message || 'Failed to load fleet vehicles');
       setVehicles([]);
     } finally {
       setLoading(false);
@@ -82,11 +100,42 @@ const VehicleListPage = () => {
     loadData();
   }, [loadData]);
 
+  // Branches filtered for the current form's client
+  const formBranches = useMemo(() => {
+    if (!formData.client) return branches;
+    return branches.filter(
+      (b) => (b.client?._id || b.client)?.toString() === formData.client.toString()
+    );
+  }, [branches, formData.client]);
+
+  // Handle client change in form: auto-select first matching branch
+  const handleClientChange = (newClientId) => {
+    const matching = branches.filter(
+      (b) => (b.client?._id || b.client)?.toString() === newClientId.toString()
+    );
+    setFormData((prev) => ({
+      ...prev,
+      client: newClientId,
+      branch: matching[0]?._id || '',
+    }));
+  };
+
   const filteredVehicles = useMemo(() => {
     return vehicles.filter((v) => {
-      const avail = v.availability?.toUpperCase() || 'AVAILABLE';
+      const avail = (v.availability || v.status || 'AVAILABLE').toUpperCase();
       if (availabilityFilter !== 'all' && avail !== availabilityFilter) return false;
       if (typeFilter !== 'all' && v.vehicleType?.toLowerCase() !== typeFilter.toLowerCase()) return false;
+      
+      if (clientFilter !== 'all') {
+        const cId = v.client?._id || v.client;
+        if (cId !== clientFilter) return false;
+      }
+
+      if (branchFilter !== 'all') {
+        const bId = v.branch?._id || v.branch;
+        if (bId !== branchFilter) return false;
+      }
+
       if (searchQuery.trim()) {
         const query = searchQuery.toLowerCase();
         const matchNum = v.vehicleNumber?.toLowerCase().includes(query);
@@ -96,21 +145,27 @@ const VehicleListPage = () => {
       }
       return true;
     });
-  }, [vehicles, availabilityFilter, typeFilter, searchQuery]);
+  }, [vehicles, availabilityFilter, typeFilter, clientFilter, branchFilter, searchQuery]);
 
   const openCreateModal = () => {
     setEditingVehicle(null);
+    const initialClientId = clients[0]?._id || '';
+    const matchingBranches = branches.filter(
+      (b) => (b.client?._id || b.client)?.toString() === initialClientId.toString()
+    );
+
     setFormData({
       vehicleNumber: '',
       vehicleType: 'ev_bike',
       brand: 'Ather Energy',
       model: 'Ather 450X',
-      client: clients[0]?._id || '',
-      branch: branches[0]?._id || '',
+      client: initialClientId,
+      branch: matchingBranches[0]?._id || branches[0]?._id || '',
       fuelType: 'electric',
       engineNumber: `ENG-${Math.floor(1000 + Math.random() * 9000)}`,
       chassisNumber: `CHS-${Math.floor(1000 + Math.random() * 9000)}`,
       availability: 'AVAILABLE',
+      status: 'available',
       odometer: 0,
     });
     setModalOpen(true);
@@ -129,6 +184,7 @@ const VehicleListPage = () => {
       engineNumber: vehicle.engineNumber || '',
       chassisNumber: vehicle.chassisNumber || '',
       availability: vehicle.availability?.toUpperCase() || 'AVAILABLE',
+      status: vehicle.status || 'available',
       odometer: vehicle.odometer || 0,
     });
     setModalOpen(true);
@@ -136,6 +192,10 @@ const VehicleListPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!formData.vehicleNumber.trim()) {
+      showError('Vehicle number is required');
+      return;
+    }
     setSubmitting(true);
     try {
       if (editingVehicle) {
@@ -148,7 +208,7 @@ const VehicleListPage = () => {
       setModalOpen(false);
       loadData();
     } catch (err) {
-      showError(err.response?.data?.message || 'Operation failed');
+      showError(err.response?.data?.message || err.message || 'Operation failed');
     } finally {
       setSubmitting(false);
     }
@@ -156,15 +216,24 @@ const VehicleListPage = () => {
 
   const confirmDelete = async () => {
     if (!vehicleToDelete) return;
+    setSubmitting(true);
     try {
       await vehicleService.deleteVehicle(vehicleToDelete._id);
       showSuccess('Vehicle removed from fleet!');
       setDeleteConfirmOpen(false);
+      setVehicleToDelete(null);
       loadData();
     } catch (err) {
-      showError(err.response?.data?.message || 'Failed to delete vehicle');
+      showError(err.response?.data?.message || err.message || 'Failed to delete vehicle');
+    } finally {
+      setSubmitting(false);
     }
   };
+
+  const canManage =
+    activeRole === 'super_admin' ||
+    activeRole === 'client_admin' ||
+    activeRole === 'dispatcher';
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -172,7 +241,7 @@ const VehicleListPage = () => {
         title="Fleet Vehicles"
         subtitle="Manage EV delivery bikes, scooters, maintenance status, and store allocations"
       >
-        {(activeRole === 'super_admin' || activeRole === 'client_admin' || activeRole === 'dispatcher') && (
+        {canManage && (
           <Button variant="primary" size="md" onClick={openCreateModal}>
             <HiOutlinePlus className="w-5 h-5" />
             Add Fleet Vehicle
@@ -180,20 +249,47 @@ const VehicleListPage = () => {
         )}
       </PageHeader>
 
-      {/* Controls */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white dark:bg-[#111111] p-3 rounded-xl border border-slate-200 dark:border-[#2E2E2E] shadow-card">
-        <div className="relative w-full sm:w-80">
+      {/* KPI Stats Strip */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="bg-[#111111] border border-[#2E2E2E] rounded-xl p-4">
+          <p className="text-2xs font-semibold text-[#A3A3A3] uppercase tracking-wider">Total Fleet</p>
+          <p className="text-2xl font-black text-white mt-1">{vehicles.length}</p>
+        </div>
+        <div className="bg-[#111111] border border-[#2E2E2E] rounded-xl p-4">
+          <p className="text-2xs font-semibold text-emerald-400 uppercase tracking-wider">Available For Assignment</p>
+          <p className="text-2xl font-black text-emerald-400 mt-1">
+            {vehicles.filter((v) => (v.availability || v.status || '').toUpperCase() === 'AVAILABLE').length}
+          </p>
+        </div>
+        <div className="bg-[#111111] border border-[#2E2E2E] rounded-xl p-4">
+          <p className="text-2xs font-semibold text-blue-400 uppercase tracking-wider">On Active Delivery</p>
+          <p className="text-2xl font-black text-blue-400 mt-1">
+            {vehicles.filter((v) => (v.availability || v.status || '').toUpperCase() === 'ON_DELIVERY').length}
+          </p>
+        </div>
+        <div className="bg-[#111111] border border-[#2E2E2E] rounded-xl p-4">
+          <p className="text-2xs font-semibold text-amber-400 uppercase tracking-wider">In Maintenance</p>
+          <p className="text-2xl font-black text-amber-400 mt-1">
+            {vehicles.filter((v) => (v.availability || v.status || '').toUpperCase() === 'MAINTENANCE').length}
+          </p>
+        </div>
+      </div>
+
+      {/* Controls / Filter Bar */}
+      <div className="flex flex-col md:flex-row items-center justify-between gap-3 bg-white dark:bg-[#111111] p-3 rounded-xl border border-slate-200 dark:border-[#2E2E2E] shadow-card">
+        <div className="relative w-full md:w-72">
           <HiOutlineMagnifyingGlass className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Search vehicle number, model..."
+            placeholder="Search reg number, model, brand..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-9 pr-3 py-1.5 rounded-lg bg-slate-50 dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#404040] text-xs text-slate-900 dark:text-slate-100 outline-none focus:border-amber-500"
           />
         </div>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto flex-wrap">
+        <div className="flex items-center gap-2 w-full md:w-auto flex-wrap">
+          {/* Availability Filter */}
           <select
             value={availabilityFilter}
             onChange={(e) => setAvailabilityFilter(e.target.value)}
@@ -205,6 +301,7 @@ const VehicleListPage = () => {
             <option value="MAINTENANCE">Maintenance</option>
           </select>
 
+          {/* Type Filter */}
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
@@ -213,8 +310,40 @@ const VehicleListPage = () => {
             <option value="all">All Vehicle Types</option>
             <option value="ev_bike">EV Bike</option>
             <option value="scooter">Scooter</option>
-            <option value="bike">Bike</option>
+            <option value="bike">Motorcycle</option>
           </select>
+
+          {/* Client Filter (Super Admin) */}
+          {activeRole === 'super_admin' && (
+            <select
+              value={clientFilter}
+              onChange={(e) => setClientFilter(e.target.value)}
+              className="px-3 py-1.5 rounded-lg bg-slate-50 dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#404040] text-xs font-medium text-slate-800 dark:text-slate-200 outline-none focus:border-amber-500"
+            >
+              <option value="all">All Clients</option>
+              {clients.map((c) => (
+                <option key={c._id} value={c._id}>
+                  {c.companyName || c.name}
+                </option>
+              ))}
+            </select>
+          )}
+
+          {/* Branch Filter (Super Admin) */}
+          {activeRole === 'super_admin' && (
+            <select
+              value={branchFilter}
+              onChange={(e) => setBranchFilter(e.target.value)}
+              className="px-3 py-1.5 rounded-lg bg-slate-50 dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#404040] text-xs font-medium text-slate-800 dark:text-slate-200 outline-none focus:border-amber-500"
+            >
+              <option value="all">All Branches</option>
+              {branches.map((b) => (
+                <option key={b._id} value={b._id}>
+                  {b.branchName || b.name}
+                </option>
+              ))}
+            </select>
+          )}
         </div>
       </div>
 
@@ -227,24 +356,27 @@ const VehicleListPage = () => {
                 <th className="px-5 py-3 text-xs font-semibold uppercase text-slate-500">Reg Number</th>
                 <th className="px-5 py-3 text-xs font-semibold uppercase text-slate-500">Model & Brand</th>
                 <th className="px-5 py-3 text-xs font-semibold uppercase text-slate-500">Type / Fuel</th>
-                <th className="px-5 py-3 text-xs font-semibold uppercase text-slate-500">Assigned Branch</th>
+                <th className="px-5 py-3 text-xs font-semibold uppercase text-slate-500">Client & Branch</th>
+                <th className="px-5 py-3 text-xs font-semibold uppercase text-slate-500">Assigned Driver</th>
                 <th className="px-5 py-3 text-xs font-semibold uppercase text-slate-500 text-center">Availability</th>
                 <th className="px-5 py-3 text-xs font-semibold uppercase text-slate-500 text-right">Odometer</th>
-                {(activeRole === 'super_admin' || activeRole === 'dispatcher') && (
-                  <th className="px-5 py-3 text-xs font-semibold uppercase text-slate-500 text-right">Actions</th>
-                )}
+                <th className="px-5 py-3 text-xs font-semibold uppercase text-slate-500 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-[#2E2E2E]">
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="px-5 py-10 text-center text-slate-400 text-xs">
-                    Loading fleet vehicles from MongoDB...
+                  <td colSpan={8} className="px-5 py-12 text-center text-slate-400 text-xs">
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="w-6 h-6 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+                      <span>Loading fleet vehicles from MongoDB...</span>
+                    </div>
                   </td>
                 </tr>
               ) : filteredVehicles.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-5 py-10 text-center text-slate-400 text-xs">
+                  <td colSpan={8} className="px-5 py-12 text-center text-slate-400 text-xs">
+                    <HiOutlineTruck className="w-10 h-10 mx-auto mb-2 text-slate-600" />
                     No vehicles found matching filters. Click "Add Fleet Vehicle" to register one.
                   </td>
                 </tr>
@@ -252,6 +384,12 @@ const VehicleListPage = () => {
                 filteredVehicles.map((vehicle) => {
                   const avail = vehicle.availability?.toUpperCase() || 'AVAILABLE';
                   const isEV = vehicle.fuelType === 'electric' || vehicle.vehicleType === 'ev_bike';
+                  const driverObj = vehicle.assignedDriver;
+                  const driverName = driverObj
+                    ? driverObj.firstName && driverObj.lastName
+                      ? `${driverObj.firstName} ${driverObj.lastName}`
+                      : driverObj.name || driverObj.employeeId || 'Driver Assigned'
+                    : null;
 
                   return (
                     <tr key={vehicle._id} className="hover:bg-slate-50/70 dark:hover:bg-[#1A1A1A]/60 transition-colors">
@@ -269,20 +407,31 @@ const VehicleListPage = () => {
                       </td>
                       <td className="px-5 py-3.5 text-xs">
                         <span className="px-2 py-0.5 rounded-full text-2xs font-semibold bg-slate-100 dark:bg-[#242424] text-slate-700 dark:text-slate-300 uppercase">
-                          {vehicle.vehicleType}
+                          {vehicle.vehicleType?.replace('_', ' ')}
                         </span>
                       </td>
-                      <td className="px-5 py-3.5 text-xs text-slate-600 dark:text-slate-300">
-                        {vehicle.branch?.branchName || vehicle.client?.companyName || 'Indiranagar Hub'}
+                      <td className="px-5 py-3.5 text-xs">
+                        <p className="font-medium text-slate-900 dark:text-slate-100">{vehicle.client?.companyName || 'Domino\'s'}</p>
+                        <p className="text-2xs text-slate-400">{vehicle.branch?.branchName || 'Indiranagar Hub'}</p>
+                      </td>
+                      <td className="px-5 py-3.5 text-xs">
+                        {driverName ? (
+                          <div className="flex items-center gap-1.5 text-amber-400 font-medium">
+                            <HiOutlineUser className="w-3.5 h-3.5" />
+                            <span>{driverName}</span>
+                          </div>
+                        ) : (
+                          <span className="text-2xs text-slate-500 italic">Unassigned</span>
+                        )}
                       </td>
                       <td className="px-5 py-3.5 text-center">
                         <span
                           className={`px-2.5 py-1 rounded-full text-2xs font-bold uppercase ${
                             avail === 'AVAILABLE'
-                              ? 'bg-green-50 dark:bg-green-500/15 text-green-700 dark:text-green-400'
+                              ? 'bg-green-50 dark:bg-green-500/15 text-green-700 dark:text-green-400 border border-green-500/20'
                               : avail === 'ON_DELIVERY'
-                              ? 'bg-blue-50 dark:bg-blue-500/15 text-blue-700 dark:text-blue-400'
-                              : 'bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-400'
+                              ? 'bg-blue-50 dark:bg-blue-500/15 text-blue-700 dark:text-blue-400 border border-blue-500/20'
+                              : 'bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/20'
                           }`}
                         >
                           {avail.replace(/_/g, ' ')}
@@ -291,29 +440,43 @@ const VehicleListPage = () => {
                       <td className="px-5 py-3.5 text-right font-mono text-xs text-slate-700 dark:text-slate-300">
                         {(vehicle.odometer || 0).toLocaleString('en-IN')} km
                       </td>
-                      {(activeRole === 'super_admin' || activeRole === 'dispatcher') && (
-                        <td className="px-5 py-3.5 text-right">
-                          <div className="flex items-center justify-end gap-1.5">
-                            <button
-                              onClick={() => openEditModal(vehicle)}
-                              className="p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-[#242424] text-slate-500 hover:text-amber-500 transition-colors"
-                              title="Edit Vehicle"
-                            >
-                              <HiOutlinePencilSquare className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => {
-                                setVehicleToDelete(vehicle);
-                                setDeleteConfirmOpen(true);
-                              }}
-                              className="p-1.5 rounded-md hover:bg-red-50 dark:hover:bg-red-950/40 text-slate-500 hover:text-red-500 transition-colors"
-                              title="Delete Vehicle"
-                            >
-                              <HiOutlineTrash className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </td>
-                      )}
+                      <td className="px-5 py-3.5 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
+                          {/* View Details Button */}
+                          <button
+                            onClick={() => {
+                              setSelectedVehicle(vehicle);
+                              setDetailsModalOpen(true);
+                            }}
+                            className="p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-[#242424] text-slate-400 hover:text-amber-400 transition-colors"
+                            title="View Details"
+                          >
+                            <HiOutlineEye className="w-4 h-4" />
+                          </button>
+
+                          {canManage && (
+                            <>
+                              <button
+                                onClick={() => openEditModal(vehicle)}
+                                className="p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-[#242424] text-slate-400 hover:text-amber-500 transition-colors"
+                                title="Edit Vehicle"
+                              >
+                                <HiOutlinePencilSquare className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setVehicleToDelete(vehicle);
+                                  setDeleteConfirmOpen(true);
+                                }}
+                                className="p-1.5 rounded-md hover:bg-red-50 dark:hover:bg-red-950/40 text-slate-400 hover:text-red-500 transition-colors"
+                                title="Delete Vehicle"
+                              >
+                                <HiOutlineTrash className="w-4 h-4" />
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </td>
                     </tr>
                   );
                 })
@@ -322,6 +485,85 @@ const VehicleListPage = () => {
           </table>
         </div>
       </Card>
+
+      {/* View Vehicle Details Modal */}
+      <Modal
+        isOpen={detailsModalOpen}
+        onClose={() => setDetailsModalOpen(false)}
+        title={`Vehicle: ${selectedVehicle?.vehicleNumber || ''}`}
+        size="md"
+      >
+        {selectedVehicle && (
+          <div className="space-y-4 pt-2">
+            <div className="flex items-center justify-between pb-3 border-b border-[#2E2E2E]">
+              <div>
+                <p className="text-base font-bold text-white">{selectedVehicle.model}</p>
+                <p className="text-xs text-[#A3A3A3]">{selectedVehicle.brand || 'FastFleet Operations'}</p>
+              </div>
+              <span
+                className={`px-2.5 py-1 rounded-full text-xs font-bold uppercase ${
+                  (selectedVehicle.availability || 'AVAILABLE').toUpperCase() === 'AVAILABLE'
+                    ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20'
+                    : (selectedVehicle.availability || '').toUpperCase() === 'ON_DELIVERY'
+                    ? 'bg-blue-500/15 text-blue-400 border border-blue-500/20'
+                    : 'bg-amber-500/15 text-amber-400 border border-amber-500/20'
+                }`}
+              >
+                {(selectedVehicle.availability || 'AVAILABLE').replace(/_/g, ' ')}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              <div className="bg-[#1A1A1A] p-3 rounded-lg border border-[#2E2E2E]">
+                <span className="text-[#A3A3A3] block uppercase tracking-wider text-2xs mb-1">Registration</span>
+                <span className="font-mono font-bold text-white">{selectedVehicle.vehicleNumber}</span>
+              </div>
+              <div className="bg-[#1A1A1A] p-3 rounded-lg border border-[#2E2E2E]">
+                <span className="text-[#A3A3A3] block uppercase tracking-wider text-2xs mb-1">Type & Fuel</span>
+                <span className="font-semibold text-white uppercase">{selectedVehicle.vehicleType} / {selectedVehicle.fuelType || 'Electric'}</span>
+              </div>
+              <div className="bg-[#1A1A1A] p-3 rounded-lg border border-[#2E2E2E]">
+                <span className="text-[#A3A3A3] block uppercase tracking-wider text-2xs mb-1">Restaurant Client</span>
+                <span className="font-semibold text-white">{selectedVehicle.client?.companyName || 'Domino\'s'}</span>
+              </div>
+              <div className="bg-[#1A1A1A] p-3 rounded-lg border border-[#2E2E2E]">
+                <span className="text-[#A3A3A3] block uppercase tracking-wider text-2xs mb-1">Assigned Branch</span>
+                <span className="font-semibold text-white">{selectedVehicle.branch?.branchName || 'Indiranagar Hub'}</span>
+              </div>
+              <div className="bg-[#1A1A1A] p-3 rounded-lg border border-[#2E2E2E]">
+                <span className="text-[#A3A3A3] block uppercase tracking-wider text-2xs mb-1">Odometer Reading</span>
+                <span className="font-mono text-white">{(selectedVehicle.odometer || 0).toLocaleString('en-IN')} km</span>
+              </div>
+              <div className="bg-[#1A1A1A] p-3 rounded-lg border border-[#2E2E2E]">
+                <span className="text-[#A3A3A3] block uppercase tracking-wider text-2xs mb-1">Assigned Driver</span>
+                <span className="font-semibold text-amber-400">
+                  {selectedVehicle.assignedDriver
+                    ? `${selectedVehicle.assignedDriver.firstName || ''} ${selectedVehicle.assignedDriver.lastName || ''}`.trim() || selectedVehicle.assignedDriver.name || 'Assigned'
+                    : 'None Assigned'}
+                </span>
+              </div>
+              {selectedVehicle.engineNumber && (
+                <div className="bg-[#1A1A1A] p-3 rounded-lg border border-[#2E2E2E]">
+                  <span className="text-[#A3A3A3] block uppercase tracking-wider text-2xs mb-1">Engine Number</span>
+                  <span className="font-mono text-slate-300">{selectedVehicle.engineNumber}</span>
+                </div>
+              )}
+              {selectedVehicle.chassisNumber && (
+                <div className="bg-[#1A1A1A] p-3 rounded-lg border border-[#2E2E2E]">
+                  <span className="text-[#A3A3A3] block uppercase tracking-wider text-2xs mb-1">Chassis Number</span>
+                  <span className="font-mono text-slate-300">{selectedVehicle.chassisNumber}</span>
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end pt-3 border-t border-[#2E2E2E]">
+              <Button variant="outline" size="sm" onClick={() => setDetailsModalOpen(false)}>
+                Close
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
 
       {/* Create / Edit Modal */}
       <Modal
@@ -395,12 +637,13 @@ const VehicleListPage = () => {
               </label>
               <select
                 value={formData.client}
-                onChange={(e) => setFormData({ ...formData, client: e.target.value })}
-                className="w-full px-3 py-2 rounded-lg bg-white dark:bg-[#1A1A1A] border border-slate-300 dark:border-[#404040] text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-amber-500"
+                onChange={(e) => handleClientChange(e.target.value)}
+                disabled={activeRole === 'client_admin'}
+                className="w-full px-3 py-2 rounded-lg bg-white dark:bg-[#1A1A1A] border border-slate-300 dark:border-[#404040] text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-amber-500 disabled:opacity-75"
               >
                 {clients.map((c) => (
                   <option key={c._id} value={c._id}>
-                    {c.companyName}
+                    {c.companyName || c.name}
                   </option>
                 ))}
               </select>
@@ -414,11 +657,15 @@ const VehicleListPage = () => {
                 onChange={(e) => setFormData({ ...formData, branch: e.target.value })}
                 className="w-full px-3 py-2 rounded-lg bg-white dark:bg-[#1A1A1A] border border-slate-300 dark:border-[#404040] text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-amber-500"
               >
-                {branches.map((b) => (
-                  <option key={b._id} value={b._id}>
-                    {b.branchName}
-                  </option>
-                ))}
+                {formBranches.length === 0 ? (
+                  <option value="">No branches for this client</option>
+                ) : (
+                  formBranches.map((b) => (
+                    <option key={b._id} value={b._id}>
+                      {b.branchName || b.name}
+                    </option>
+                  ))
+                )}
               </select>
             </div>
           </div>
@@ -471,6 +718,7 @@ const VehicleListPage = () => {
         message={`Are you sure you want to remove vehicle ${vehicleToDelete?.vehicleNumber} from the fleet?`}
         confirmText="Delete"
         variant="danger"
+        loading={submitting}
       />
     </div>
   );

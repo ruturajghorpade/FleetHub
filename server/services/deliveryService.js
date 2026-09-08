@@ -2,6 +2,7 @@
 import Delivery from '../models/Delivery.js';
 import Driver from '../models/Driver.js';
 import Vehicle from '../models/Vehicle.js';
+import Branch from '../models/Branch.js';
 import ApiError from '../utils/apiError.js';
 import { notifyOnCancellation } from './notificationService.js';
 
@@ -14,21 +15,47 @@ const generateOrderId = (prefix = 'ORD') => {
 };
 
 /**
+ * Valid state transitions for Delivery lifecycle
+ */
+const VALID_TRANSITIONS = {
+  pending: ['assigned', 'cancelled'],
+  assigned: ['picked_up', 'cancelled'],
+  picked_up: ['out_for_delivery', 'delivered'],
+  out_for_delivery: ['delivered'],
+  delivered: [],
+  cancelled: [],
+};
+
+/**
  * Create a new food delivery request.
  * Initial status: PENDING
  */
 export const createDelivery = async (data, user) => {
   const orderId = data.orderId || generateOrderId();
 
+  // Enforce client ownership from authenticated user
   const clientId = user.role === 'client_admin' && user.client ? user.client : data.client;
   if (!clientId) {
     throw ApiError.badRequest('Client (restaurant) reference is required');
+  }
+
+  // Branch ownership verification
+  let branchId = data.branch || null;
+  if (branchId) {
+    const branchDoc = await Branch.findById(branchId);
+    if (!branchDoc || branchDoc.isDeleted) {
+      throw ApiError.badRequest('Specified branch does not exist');
+    }
+    if (branchDoc.client.toString() !== clientId.toString()) {
+      throw ApiError.badRequest('Branch does not belong to the selected client');
+    }
   }
 
   const delivery = await Delivery.create({
     ...data,
     orderId,
     client: clientId,
+    branch: branchId,
     status: 'pending',
     createdBy: user._id,
     timeline: [
@@ -41,22 +68,13 @@ export const createDelivery = async (data, user) => {
     ],
   });
 
-  return Delivery.findById(delivery._id).populate('client', 'companyName phone address');
+  return Delivery.findById(delivery._id)
+    .populate('client', 'companyName phone address email businessType')
+    .populate('branch', 'branchName branchCode address phone');
 };
 
 /**
  * Client or Dispatcher cancels a delivery request.
- *
- * Requirements:
- * - Client may cancel delivery ONLY IF status is PENDING or ASSIGNED.
- * - If status is PICKED_UP, OUT_FOR_DELIVERY, or DELIVERED:
- *   Cannot cancel. Return proper validation error.
- * - After cancellation:
- *   Status = CANCELLED
- *   Save cancelledBy, cancellationReason, cancelledAt
- *   Release assigned driver → AVAILABLE
- *   Release assigned vehicle → AVAILABLE
- *   Notify Dispatcher & Driver
  */
 export const cancelDelivery = async (deliveryId, { reason }, user) => {
   const delivery = await Delivery.findById(deliveryId);
@@ -72,23 +90,27 @@ export const cancelDelivery = async (deliveryId, { reason }, user) => {
   }
 
   // Cancellation rule: ONLY allowed if status is PENDING or ASSIGNED
-  const nonCancellableStatuses = ['picked_up', 'out_for_delivery', 'delivered'];
+  const nonCancellableStatuses = ['picked_up', 'out_for_delivery', 'delivered', 'cancelled'];
   if (nonCancellableStatuses.includes(delivery.status.toLowerCase())) {
     throw ApiError.badRequest(
       `Cannot cancel delivery once it is "${delivery.status}". Cancellation is only allowed before pickup.`
     );
   }
 
+  if (!reason || !reason.trim()) {
+    throw ApiError.badRequest('Cancellation reason is required');
+  }
+
   const previousStatus = delivery.status;
   delivery.status = 'cancelled';
   delivery.cancelledBy = user._id;
-  delivery.cancellationReason = reason || 'Cancelled by client';
+  delivery.cancellationReason = reason.trim();
   delivery.cancelledAt = new Date();
 
   delivery.timeline.push({
     status: 'cancelled',
     timestamp: new Date(),
-    note: `Delivery cancelled (${reason || 'No reason provided'}). Previous status: ${previousStatus}`,
+    note: `Delivery cancelled (${reason.trim()}). Previous status: ${previousStatus}`,
     updatedBy: user._id,
   });
 
@@ -96,6 +118,7 @@ export const cancelDelivery = async (deliveryId, { reason }, user) => {
   if (delivery.assignedDriver) {
     await Driver.findByIdAndUpdate(delivery.assignedDriver, {
       availability: 'AVAILABLE',
+      status: 'available',
       assignedVehicle: null,
     });
   }
@@ -104,6 +127,7 @@ export const cancelDelivery = async (deliveryId, { reason }, user) => {
   if (delivery.assignedVehicle) {
     await Vehicle.findByIdAndUpdate(delivery.assignedVehicle, {
       availability: 'AVAILABLE',
+      status: 'available',
       assignedDriver: null,
     });
   }
@@ -115,17 +139,14 @@ export const cancelDelivery = async (deliveryId, { reason }, user) => {
   await notifyOnCancellation(delivery, cancelledByName);
 
   return Delivery.findById(delivery._id)
-    .populate('client', 'companyName phone')
+    .populate('client', 'companyName phone address')
+    .populate('branch', 'branchName branchCode address phone')
     .populate('assignedDriver', 'firstName lastName phone')
     .populate('assignedVehicle', 'vehicleNumber vehicleType');
 };
 
 /**
- * Driver or Dispatcher updates delivery status.
- * Allowed transitions:
- *   ASSIGNED → PICKED_UP
- *   PICKED_UP → OUT_FOR_DELIVERY
- *   OUT_FOR_DELIVERY → DELIVERED
+ * Driver, Dispatcher or Admin updates delivery status.
  */
 export const updateDeliveryStatus = async (deliveryId, { status, note }, user) => {
   const delivery = await Delivery.findById(deliveryId);
@@ -133,38 +154,62 @@ export const updateDeliveryStatus = async (deliveryId, { status, note }, user) =
     throw ApiError.notFound('Delivery not found');
   }
 
-  const normalizedStatus = status.toLowerCase();
-  const allowedStatuses = ['pending', 'assigned', 'picked_up', 'out_for_delivery', 'delivered', 'cancelled'];
-
-  if (!allowedStatuses.includes(normalizedStatus)) {
-    throw ApiError.badRequest(`Invalid status "${status}"`);
+  // Client admin check
+  if (user.role === 'client_admin' && user.client) {
+    if (delivery.client.toString() !== user.client.toString()) {
+      throw ApiError.forbidden('You are not authorized to update this delivery');
+    }
   }
 
   // Driver authorization check
   if (user.role === 'driver') {
-    // If driver, ensure delivery is assigned to them
     const driverDoc = await Driver.findOne({ user: user._id });
-    if (driverDoc && delivery.assignedDriver) {
-      if (delivery.assignedDriver.toString() !== driverDoc._id.toString()) {
-        throw ApiError.forbidden('You are not assigned to this delivery');
-      }
+    if (!driverDoc || !delivery.assignedDriver || delivery.assignedDriver.toString() !== driverDoc._id.toString()) {
+      throw ApiError.forbidden('You are not assigned to this delivery');
     }
   }
 
+  const currentStatus = (delivery.status || 'pending').toLowerCase();
+  const normalizedStatus = status ? status.toLowerCase() : '';
+
+  const allowedNext = VALID_TRANSITIONS[currentStatus] || [];
+  if (!allowedNext.includes(normalizedStatus)) {
+    throw ApiError.badRequest(
+      `Invalid status transition from "${currentStatus}" to "${normalizedStatus}". Allowed transitions: ${allowedNext.length > 0 ? allowedNext.join(', ') : 'none (terminal state)'}`
+    );
+  }
+
   delivery.status = normalizedStatus;
-  if (normalizedStatus === 'delivered') {
+
+  // Status-specific updates
+  if (normalizedStatus === 'picked_up' || normalizedStatus === 'out_for_delivery') {
+    if (delivery.assignedDriver) {
+      await Driver.findByIdAndUpdate(delivery.assignedDriver, {
+        availability: 'BUSY',
+        status: 'on_trip',
+      });
+    }
+    if (delivery.assignedVehicle) {
+      await Vehicle.findByIdAndUpdate(delivery.assignedVehicle, {
+        availability: 'ON_DELIVERY',
+        status: 'on_trip',
+      });
+    }
+  } else if (normalizedStatus === 'delivered') {
     delivery.deliveredAt = new Date();
 
     // Release driver and vehicle
     if (delivery.assignedDriver) {
       await Driver.findByIdAndUpdate(delivery.assignedDriver, {
         availability: 'AVAILABLE',
+        status: 'available',
         assignedVehicle: null,
       });
     }
     if (delivery.assignedVehicle) {
       await Vehicle.findByIdAndUpdate(delivery.assignedVehicle, {
         availability: 'AVAILABLE',
+        status: 'available',
         assignedDriver: null,
       });
     }
@@ -181,7 +226,8 @@ export const updateDeliveryStatus = async (deliveryId, { status, note }, user) =
 
   return Delivery.findById(delivery._id)
     .populate('client', 'companyName phone address')
-    .populate('assignedDriver', 'firstName lastName phone availability')
+    .populate('branch', 'branchName branchCode address phone')
+    .populate('assignedDriver', 'firstName lastName phone availability rating')
     .populate('assignedVehicle', 'vehicleNumber vehicleType brand model availability');
 };
 
@@ -203,6 +249,8 @@ export const getDeliveries = async (query = {}, user) => {
     const driverDoc = await Driver.findOne({ user: user._id });
     if (driverDoc) {
       filter.assignedDriver = driverDoc._id;
+    } else {
+      filter.assignedDriver = null;
     }
   }
 
@@ -212,8 +260,13 @@ export const getDeliveries = async (query = {}, user) => {
   }
 
   // Optional client filter (for super_admin or dispatcher)
-  if (query.client && user.role !== 'client_admin') {
+  if (query.client && query.client !== 'all' && user.role !== 'client_admin') {
     filter.client = query.client;
+  }
+
+  // Optional branch filter
+  if (query.branch && query.branch !== 'all') {
+    filter.branch = query.branch;
   }
 
   // Search by orderId, customerName, or phone
@@ -232,6 +285,7 @@ export const getDeliveries = async (query = {}, user) => {
   const [deliveries, total] = await Promise.all([
     Delivery.find(filter)
       .populate('client', 'companyName phone businessType address')
+      .populate('branch', 'branchName branchCode address phone')
       .populate('assignedDriver', 'firstName lastName phone availability rating')
       .populate('assignedVehicle', 'vehicleNumber vehicleType model availability')
       .sort({ createdAt: -1 })
@@ -257,6 +311,7 @@ export const getDeliveries = async (query = {}, user) => {
 export const getDeliveryById = async (deliveryId, user) => {
   const delivery = await Delivery.findById(deliveryId)
     .populate('client', 'companyName phone address email businessType')
+    .populate('branch', 'branchName branchCode address phone')
     .populate('assignedDriver', 'firstName lastName phone availability rating')
     .populate('assignedVehicle', 'vehicleNumber vehicleType brand model availability')
     .populate('cancelledBy', 'name role email');
@@ -265,8 +320,17 @@ export const getDeliveryById = async (deliveryId, user) => {
     throw ApiError.notFound('Delivery not found');
   }
 
+  // Client Admin access check
   if (user.role === 'client_admin' && user.client) {
     if (delivery.client?._id?.toString() !== user.client.toString()) {
+      throw ApiError.forbidden('You are not authorized to view this delivery');
+    }
+  }
+
+  // Driver access check
+  if (user.role === 'driver') {
+    const driverDoc = await Driver.findOne({ user: user._id });
+    if (!driverDoc || !delivery.assignedDriver || delivery.assignedDriver._id?.toString() !== driverDoc._id.toString()) {
       throw ApiError.forbidden('You are not authorized to view this delivery');
     }
   }

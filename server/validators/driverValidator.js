@@ -1,7 +1,7 @@
 // FleetHub – Driver Request Validators
 import { body, param } from 'express-validator';
 import { validate } from '../middleware/validationMiddleware.js';
-import { DRIVER_STATUSES, GENDERS, BLOOD_GROUPS, LICENSE_TYPES } from '../utils/constants.js';
+import { DRIVER_STATUSES, GENDERS, BLOOD_GROUPS, LICENSE_TYPES, ROLES } from '../utils/constants.js';
 
 // ════════════════════════════════════════
 // Reusable field chains
@@ -21,8 +21,13 @@ const employeeIdChain = (required = true) => {
 
 const clientChain = () =>
   body('client')
-    .notEmpty()
-    .withMessage('Client is required')
+    .custom((value, { req }) => {
+      if (!value && req.user?.role === ROLES.SUPER_ADMIN) {
+        throw new Error('Client is required');
+      }
+      return true;
+    })
+    .optional({ values: 'falsy' })
     .isMongoId()
     .withMessage('Client must be a valid ID');
 
@@ -47,7 +52,7 @@ const licenseNumberChain = (required = true) => {
 
 const emailChain = () =>
   body('email')
-    .optional({ values: 'null' })
+    .optional({ values: 'falsy' })
     .trim()
     .isEmail()
     .withMessage('Please provide a valid email address')
@@ -55,16 +60,22 @@ const emailChain = () =>
 
 const phoneChain = () =>
   body('phone')
-    .optional({ values: 'null' })
-    .trim()
-    .isMobilePhone('any', { strictMode: false })
-    .withMessage('Please provide a valid phone number');
+    .optional({ values: 'falsy' })
+    .trim();
 
 const statusChain = () =>
   body('status')
     .optional()
+    .customSanitizer((v) => (v ? v.toLowerCase() : v))
     .isIn(Object.values(DRIVER_STATUSES))
     .withMessage(`Status must be one of: ${Object.values(DRIVER_STATUSES).join(', ')}`);
+
+const availabilityChain = () =>
+  body('availability')
+    .optional({ values: 'null' })
+    .customSanitizer((v) => (v ? v.toUpperCase() : v))
+    .isIn(['AVAILABLE', 'BUSY', 'OFFLINE'])
+    .withMessage('Availability must be one of: AVAILABLE, BUSY, OFFLINE');
 
 const genderChain = () =>
   body('gender')
@@ -136,6 +147,7 @@ export const createDriverValidator = [
   emailChain(),
   phoneChain(),
   statusChain(),
+  availabilityChain(),
   genderChain(),
   bloodGroupChain(),
   licenseTypeChain(),
@@ -227,6 +239,7 @@ export const updateDriverValidator = [
   emailChain(),
   phoneChain(),
   statusChain(),
+  availabilityChain(),
   genderChain(),
   bloodGroupChain(),
   licenseTypeChain(),

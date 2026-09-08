@@ -3,6 +3,7 @@ import express from 'express';
 import {
   createDriver,
   getDrivers,
+  getAvailableDrivers,
   getDriver,
   updateDriver,
   deleteDriver,
@@ -30,13 +31,23 @@ router.use(protect);
 router
   .route('/')
   .post(
-    authorize(ROLES.SUPER_ADMIN, ROLES.DISPATCHER),
+    authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.DISPATCHER),
     createDriverValidator,
     createDriver
   )
   .get(
     authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.DISPATCHER, ROLES.DRIVER),
     getDrivers
+  );
+
+// ════════════════════════════════════════
+// /api/v1/drivers/available
+// ════════════════════════════════════════
+router
+  .route('/available')
+  .get(
+    authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.DISPATCHER),
+    getAvailableDrivers
   );
 
 // ════════════════════════════════════════
@@ -50,12 +61,12 @@ router
     getDriver
   )
   .put(
-    authorize(ROLES.SUPER_ADMIN, ROLES.DISPATCHER),
+    authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.DISPATCHER),
     updateDriverValidator,
     updateDriver
   )
   .delete(
-    authorize(ROLES.SUPER_ADMIN),
+    authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN),
     driverIdValidator,
     deleteDriver
   );
@@ -66,7 +77,7 @@ router
 router
   .route('/:id/assign-vehicle')
   .patch(
-    authorize(ROLES.SUPER_ADMIN, ROLES.DISPATCHER),
+    authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.DISPATCHER),
     assignVehicleValidator,
     assignVehicle
   );
@@ -77,7 +88,7 @@ router
 router
   .route('/:id/remove-vehicle')
   .patch(
-    authorize(ROLES.SUPER_ADMIN, ROLES.DISPATCHER),
+    authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.DISPATCHER),
     driverIdValidator,
     removeAssignedVehicle
   );

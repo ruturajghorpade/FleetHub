@@ -13,7 +13,7 @@ import { ROLES, VEHICLE_STATUSES } from '../utils/constants.js';
 const VEHICLE_POPULATES = [
   { path: 'client', select: 'companyName companyCode' },
   { path: 'branch', select: 'branchName branchCode' },
-  { path: 'assignedDriver', select: 'name email phone' },
+  { path: 'assignedDriver', select: 'firstName lastName employeeId phone availability status' },
   { path: 'createdBy', select: 'name email' },
   { path: 'updatedBy', select: 'name email' },
 ];
@@ -216,11 +216,14 @@ export const getVehicles = async (query, requestingUser) => {
   }
 
   // ── Field Filters ────────────────────
-  if (query.client) filter.client = query.client;
+  if (query.client && requestingUser.role === ROLES.SUPER_ADMIN) {
+    filter.client = query.client;
+  }
   if (query.branch) filter.branch = query.branch;
   if (query.vehicleType) filter.vehicleType = query.vehicleType;
   if (query.fuelType) filter.fuelType = query.fuelType;
   if (query.status) filter.status = query.status;
+  if (query.availability) filter.availability = query.availability.toUpperCase();
 
   const [vehicles, total] = await Promise.all([
     Vehicle.find(filter)
@@ -356,10 +359,24 @@ export const deleteVehicle = async (id, requestingUser) => {
   // Enforce scope
   enforceScopeAccess(requestingUser, vehicle, 'manage');
 
-  // ── Business Rule: Cannot delete if vehicle is currently In Transit ──
-  if (vehicle.status === VEHICLE_STATUSES.IN_TRANSIT) {
+  // ── Business Rule: Cannot delete if vehicle is currently In Transit / On Delivery ──
+  if (vehicle.status === VEHICLE_STATUSES.IN_TRANSIT || vehicle.availability === 'ON_DELIVERY') {
     throw ApiError.badRequest(
-      'Cannot delete a vehicle that is currently in transit. Please wait until the delivery is completed.'
+      'Cannot delete a vehicle that is currently on delivery. Please wait until the delivery is completed.'
+    );
+  }
+
+  // ── Business Rule: Cannot delete if assigned to a driver ──
+  if (vehicle.assignedDriver) {
+    throw ApiError.badRequest(
+      'Cannot delete a vehicle that is currently assigned to a driver. Please unassign the vehicle first.'
+    );
+  }
+
+  // ── Business Rule: Cannot delete if under maintenance ──
+  if (vehicle.status === VEHICLE_STATUSES.MAINTENANCE || vehicle.availability === 'MAINTENANCE') {
+    throw ApiError.badRequest(
+      'Cannot delete a vehicle that is currently under maintenance. Please update its status first.'
     );
   }
 
@@ -370,4 +387,42 @@ export const deleteVehicle = async (id, requestingUser) => {
   await vehicle.save({ validateBeforeSave: false });
 
   return null;
+};
+
+// ════════════════════════════════════════
+// Get Available Vehicles (For Assignment)
+// ════════════════════════════════════════
+export const getAvailableVehicles = async (query = {}, requestingUser) => {
+  const filter = buildScopeFilter(requestingUser);
+
+  // If super admin passes client filter
+  if (query.client && requestingUser.role === ROLES.SUPER_ADMIN) {
+    filter.client = query.client;
+  }
+
+  // Optional branch filter
+  if (query.branch) {
+    filter.branch = query.branch;
+  }
+
+  // Optional vehicle type filter
+  if (query.vehicleType) {
+    filter.vehicleType = query.vehicleType;
+  }
+
+  // Active status and available state
+  filter.status = VEHICLE_STATUSES.AVAILABLE;
+  filter.availability = { $in: ['AVAILABLE', 'available'] };
+
+  // If looking for unassigned vehicles only (e.g. for driver assignment)
+  if (query.unassigned === 'true' || query.unassignedOnly === 'true') {
+    filter.assignedDriver = null;
+  }
+
+  const vehicles = await Vehicle.find(filter)
+    .sort({ vehicleNumber: 1 })
+    .populate(VEHICLE_POPULATES)
+    .lean();
+
+  return vehicles;
 };

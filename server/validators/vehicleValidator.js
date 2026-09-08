@@ -1,7 +1,7 @@
 // FleetHub – Vehicle Request Validators
 import { body, param } from 'express-validator';
 import { validate } from '../middleware/validationMiddleware.js';
-import { VEHICLE_TYPES, FUEL_TYPES, VEHICLE_STATUSES } from '../utils/constants.js';
+import { VEHICLE_TYPES, FUEL_TYPES, VEHICLE_STATUSES, ROLES } from '../utils/constants.js';
 
 // ════════════════════════════════════════
 // Reusable field chains
@@ -21,8 +21,13 @@ const vehicleNumberChain = (required = true) => {
 
 const clientChain = () =>
   body('client')
-    .notEmpty()
-    .withMessage('Client is required')
+    .custom((value, { req }) => {
+      if (!value && req.user?.role === ROLES.SUPER_ADMIN) {
+        throw new Error('Client is required');
+      }
+      return true;
+    })
+    .optional({ values: 'falsy' })
     .isMongoId()
     .withMessage('Client must be a valid ID');
 
@@ -36,26 +41,36 @@ const branchChain = () =>
 const vehicleTypeChain = () =>
   body('vehicleType')
     .optional({ values: 'null' })
+    .customSanitizer((v) => (v ? v.toLowerCase() : v))
     .isIn(Object.values(VEHICLE_TYPES))
     .withMessage(`Vehicle type must be one of: ${Object.values(VEHICLE_TYPES).join(', ')}`);
 
 const fuelTypeChain = () =>
   body('fuelType')
     .optional({ values: 'null' })
+    .customSanitizer((v) => (v ? v.toLowerCase() : v))
     .isIn(Object.values(FUEL_TYPES))
     .withMessage(`Fuel type must be one of: ${Object.values(FUEL_TYPES).join(', ')}`);
 
 const statusChain = () =>
   body('status')
     .optional()
+    .customSanitizer((v) => (v ? v.toLowerCase() : v))
     .isIn(Object.values(VEHICLE_STATUSES))
     .withMessage(`Status must be one of: ${Object.values(VEHICLE_STATUSES).join(', ')}`);
+
+const availabilityChain = () =>
+  body('availability')
+    .optional({ values: 'null' })
+    .customSanitizer((v) => (v ? v.toUpperCase() : v))
+    .isIn(['AVAILABLE', 'ON_DELIVERY', 'MAINTENANCE'])
+    .withMessage('Availability must be one of: AVAILABLE, ON_DELIVERY, MAINTENANCE');
 
 const assignedDriverChain = () =>
   body('assignedDriver')
     .optional({ values: 'null' })
     .isMongoId()
-    .withMessage('Assigned driver must be a valid user ID');
+    .withMessage('Assigned driver must be a valid ID');
 
 const yearChain = () =>
   body('manufacturingYear')
@@ -95,6 +110,7 @@ export const createVehicleValidator = [
   vehicleTypeChain(),
   fuelTypeChain(),
   statusChain(),
+  availabilityChain(),
   assignedDriverChain(),
 
   body('brand').optional().trim().isLength({ max: 100 }).withMessage('Brand must not exceed 100 characters'),
@@ -149,6 +165,7 @@ export const updateVehicleValidator = [
   vehicleTypeChain(),
   fuelTypeChain(),
   statusChain(),
+  availabilityChain(),
   assignedDriverChain(),
 
   body('brand').optional().trim().isLength({ max: 100 }).withMessage('Brand must not exceed 100 characters'),

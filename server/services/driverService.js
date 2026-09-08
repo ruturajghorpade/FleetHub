@@ -179,7 +179,7 @@ export const createDriver = async (data, requestingUser) => {
 
   // ── Validate assigned vehicle (if provided) ──
   if (data.assignedVehicle) {
-    await validateVehicleAssignment(data.assignedVehicle, null);
+    await validateVehicleAssignment(data.assignedVehicle, null, { client: data.client });
   }
 
   const driver = await Driver.create({
@@ -187,6 +187,14 @@ export const createDriver = async (data, requestingUser) => {
     createdBy: requestingUser._id,
     updatedBy: requestingUser._id,
   });
+
+  // Keep vehicle bidirectional relationship in sync
+  if (driver.assignedVehicle) {
+    await Vehicle.findByIdAndUpdate(driver.assignedVehicle, {
+      assignedDriver: driver._id,
+      updatedBy: requestingUser._id,
+    });
+  }
 
   // Populate references before returning
   await driver.populate(DRIVER_POPULATES);
@@ -217,9 +225,12 @@ export const getDrivers = async (query, requestingUser) => {
   }
 
   // ── Field Filters ────────────────────
-  if (query.client) filter.client = query.client;
+  if (query.client && requestingUser.role === ROLES.SUPER_ADMIN) {
+    filter.client = query.client;
+  }
   if (query.branch) filter.branch = query.branch;
   if (query.status) filter.status = query.status;
+  if (query.availability) filter.availability = query.availability.toUpperCase();
   if (query.assignedVehicle) filter.assignedVehicle = query.assignedVehicle;
 
   const [drivers, total] = await Promise.all([
@@ -322,9 +333,15 @@ export const updateDriver = async (id, data, requestingUser) => {
   // ── Validate assigned vehicle change ──
   if (data.assignedVehicle !== undefined) {
     if (data.assignedVehicle) {
-      await validateVehicleAssignment(data.assignedVehicle, id);
+      await validateVehicleAssignment(data.assignedVehicle, id, driver);
+      if (driver.assignedVehicle && driver.assignedVehicle.toString() !== data.assignedVehicle.toString()) {
+        await Vehicle.findByIdAndUpdate(driver.assignedVehicle, { assignedDriver: null });
+      }
+      await Vehicle.findByIdAndUpdate(data.assignedVehicle, { assignedDriver: id });
+    } else if (driver.assignedVehicle) {
+      // If clearing assignment (null)
+      await Vehicle.findByIdAndUpdate(driver.assignedVehicle, { assignedDriver: null });
     }
-    // If clearing assignment (null), allow it
   }
 
   // Strip undefined/null fields and apply audit trail
@@ -358,10 +375,17 @@ export const deleteDriver = async (id, requestingUser) => {
   // Enforce scope
   enforceScopeAccess(requestingUser, driver, 'manage');
 
-  // ── Business Rule: Cannot delete if driver is currently On Duty ──
-  if (driver.status === DRIVER_STATUSES.ON_DUTY) {
+  // ── Business Rule: Cannot delete if driver is currently on active delivery ──
+  if (driver.status === DRIVER_STATUSES.ON_DUTY || driver.availability === 'BUSY') {
     throw ApiError.badRequest(
-      'Cannot delete a driver who is currently on duty. Please wait until the active delivery is completed.'
+      'Cannot delete a driver who is currently on active delivery. Please wait until the delivery is completed.'
+    );
+  }
+
+  // ── Business Rule: Cannot delete if driver has an assigned vehicle ──
+  if (driver.assignedVehicle) {
+    throw ApiError.badRequest(
+      'Cannot delete a driver who currently has an assigned vehicle. Please unassign the vehicle first.'
     );
   }
 
@@ -387,11 +411,26 @@ export const assignVehicle = async (driverId, vehicleId, requestingUser) => {
   enforceScopeAccess(requestingUser, driver, 'manage');
 
   // Validate vehicle assignment
-  await validateVehicleAssignment(vehicleId, driverId);
+  const vehicle = await validateVehicleAssignment(vehicleId, driverId, driver);
 
+  // If driver had a previous vehicle, clear that vehicle's assignedDriver
+  if (driver.assignedVehicle && driver.assignedVehicle.toString() !== vehicleId.toString()) {
+    await Vehicle.findByIdAndUpdate(driver.assignedVehicle, { assignedDriver: null });
+  }
+
+  // If vehicle had a previous driver, clear that driver's assignedVehicle
+  if (vehicle.assignedDriver && vehicle.assignedDriver.toString() !== driverId.toString()) {
+    await Driver.findByIdAndUpdate(vehicle.assignedDriver, { assignedVehicle: null });
+  }
+
+  // Bidirectional update
   driver.assignedVehicle = vehicleId;
   driver.updatedBy = requestingUser._id;
   await driver.save({ validateBeforeSave: false });
+
+  vehicle.assignedDriver = driverId;
+  vehicle.updatedBy = requestingUser._id;
+  await vehicle.save({ validateBeforeSave: false });
 
   await driver.populate(DRIVER_POPULATES);
 
@@ -414,9 +453,18 @@ export const removeAssignedVehicle = async (driverId, requestingUser) => {
     throw ApiError.badRequest('This driver does not have an assigned vehicle');
   }
 
+  const oldVehicleId = driver.assignedVehicle;
+
   driver.assignedVehicle = null;
   driver.updatedBy = requestingUser._id;
   await driver.save({ validateBeforeSave: false });
+
+  if (oldVehicleId) {
+    await Vehicle.findByIdAndUpdate(oldVehicleId, {
+      assignedDriver: null,
+      updatedBy: requestingUser._id,
+    });
+  }
 
   await driver.populate(DRIVER_POPULATES);
 
@@ -428,16 +476,41 @@ export const removeAssignedVehicle = async (driverId, requestingUser) => {
 // ════════════════════════════════════════
 
 /**
- * Ensures the target vehicle exists and is not already assigned
- * to another active driver.
+ * Ensures the target vehicle exists, belongs to the same client,
+ * is not under maintenance or in transit, and is not already assigned.
  *
  * @param {string} vehicleId  – Vehicle ObjectId to assign
  * @param {string|null} currentDriverId – Current driver ID (excluded from duplicate check)
+ * @param {object|null} targetDriver – Driver document or client object
  */
-const validateVehicleAssignment = async (vehicleId, currentDriverId) => {
+const validateVehicleAssignment = async (vehicleId, currentDriverId, targetDriver) => {
   const vehicle = await Vehicle.findById(vehicleId);
   if (!vehicle) {
     throw ApiError.notFound('Vehicle not found');
+  }
+
+  // Check client match: Driver and vehicle MUST belong to the same client
+  if (targetDriver && targetDriver.client) {
+    const driverClient = targetDriver.client._id?.toString() || targetDriver.client.toString();
+    const vehicleClient = vehicle.client._id?.toString() || vehicle.client.toString();
+    if (driverClient !== vehicleClient) {
+      throw ApiError.badRequest('Vehicle and driver must belong to the same client');
+    }
+  }
+
+  // Maintenance protection: cannot assign vehicle under maintenance
+  if (vehicle.status === 'maintenance' || vehicle.availability === 'MAINTENANCE') {
+    throw ApiError.badRequest(`Vehicle "${vehicle.vehicleNumber}" is currently under maintenance and cannot be assigned`);
+  }
+
+  // Inactive vehicle protection
+  if (vehicle.status === 'inactive') {
+    throw ApiError.badRequest(`Vehicle "${vehicle.vehicleNumber}" is inactive and cannot be assigned`);
+  }
+
+  // Active delivery protection
+  if (vehicle.status === 'in_transit' || vehicle.availability === 'ON_DELIVERY') {
+    throw ApiError.badRequest(`Vehicle "${vehicle.vehicleNumber}" is currently on active delivery`);
   }
 
   // Check if vehicle is already assigned to another active driver
@@ -457,4 +530,39 @@ const validateVehicleAssignment = async (vehicleId, currentDriverId) => {
       `Vehicle "${vehicle.vehicleNumber}" is already assigned to driver "${existingAssignment.employeeId}"`
     );
   }
+
+  return vehicle;
+};
+
+// ════════════════════════════════════════
+// Get Available Drivers (For Assignment)
+// ════════════════════════════════════════
+export const getAvailableDrivers = async (query = {}, requestingUser) => {
+  const filter = buildScopeFilter(requestingUser);
+
+  // If super admin passes client filter
+  if (query.client && requestingUser.role === ROLES.SUPER_ADMIN) {
+    filter.client = query.client;
+  }
+
+  // Optional branch filter
+  if (query.branch) {
+    filter.branch = query.branch;
+  }
+
+  // Active status and available state
+  filter.status = { $in: [DRIVER_STATUSES.AVAILABLE, DRIVER_STATUSES.ON_DUTY] };
+  filter.availability = { $in: ['AVAILABLE', 'available'] };
+
+  // If unassignedOnly requested (e.g. for vehicle pairing)
+  if (query.unassigned === 'true' || query.unassignedOnly === 'true') {
+    filter.assignedVehicle = null;
+  }
+
+  const drivers = await Driver.find(filter)
+    .sort({ firstName: 1, lastName: 1 })
+    .populate(DRIVER_POPULATES)
+    .lean({ virtuals: true });
+
+  return drivers;
 };

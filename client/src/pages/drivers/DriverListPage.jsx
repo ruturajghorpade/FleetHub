@@ -9,7 +9,12 @@ import {
   HiOutlineTruck,
   HiOutlinePhone,
   HiOutlineIdentification,
-  HiOutlineXMark,
+  HiOutlineEye,
+  HiOutlineBuildingOffice2,
+  HiOutlineMapPin,
+  HiOutlineStar,
+  HiOutlineBriefcase,
+  HiOutlineEnvelope,
 } from 'react-icons/hi2';
 import PageHeader from '@/components/layout/PageHeader';
 import Card from '@/components/common/Card';
@@ -33,10 +38,13 @@ const DriverListPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [clientFilter, setClientFilter] = useState('all');
+  const [branchFilter, setBranchFilter] = useState('all');
 
   // Modals
   const [modalOpen, setModalOpen] = useState(false);
   const [editingDriver, setEditingDriver] = useState(null);
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [selectedDriver, setSelectedDriver] = useState(null);
   const [assignModalOpen, setAssignModalOpen] = useState(false);
   const [selectedDriverForVehicle, setSelectedDriverForVehicle] = useState(null);
   const [selectedVehicleId, setSelectedVehicleId] = useState('');
@@ -68,15 +76,21 @@ const DriverListPage = () => {
         vehicleService.getVehicles({ limit: 100 }),
       ]);
       setDrivers(drvRes.drivers || []);
-      setClients(cliRes.clients || []);
-      setBranches(braRes.branches || []);
+      const loadedClients = cliRes.clients || [];
+      const loadedBranches = braRes.branches || [];
+      setClients(loadedClients);
+      setBranches(loadedBranches);
       setVehicles(vehRes.vehicles || []);
 
-      if (cliRes.clients?.length > 0 && braRes.branches?.length > 0) {
+      if (loadedClients.length > 0) {
+        const firstClientId = loadedClients[0]._id;
+        const matchingBranch = loadedBranches.find(
+          (b) => (b.client?._id || b.client) === firstClientId
+        );
         setFormData((prev) => ({
           ...prev,
-          client: cliRes.clients[0]._id,
-          branch: braRes.branches[0]._id,
+          client: firstClientId,
+          branch: matchingBranch?._id || loadedBranches[0]?._id || '',
         }));
       }
     } catch (err) {
@@ -90,6 +104,48 @@ const DriverListPage = () => {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  // Branches filtered for the current form's selected client
+  const formBranches = useMemo(() => {
+    if (!formData.client) return branches;
+    return branches.filter(
+      (b) => (b.client?._id || b.client)?.toString() === formData.client.toString()
+    );
+  }, [branches, formData.client]);
+
+  // Handle client selection in Add/Edit modal
+  const handleClientChange = (newClientId) => {
+    const matching = branches.filter(
+      (b) => (b.client?._id || b.client)?.toString() === newClientId.toString()
+    );
+    setFormData((prev) => ({
+      ...prev,
+      client: newClientId,
+      branch: matching[0]?._id || '',
+    }));
+  };
+
+  // Vehicles available for assignment to selectedDriverForVehicle
+  const assignableVehicles = useMemo(() => {
+    if (!selectedDriverForVehicle) return [];
+    const driverClientId = (
+      selectedDriverForVehicle.client?._id || selectedDriverForVehicle.client
+    )?.toString();
+
+    return vehicles.filter((v) => {
+      const vClientId = (v.client?._id || v.client)?.toString();
+      // Must match driver's client
+      if (vClientId !== driverClientId) return false;
+      // Must not be under maintenance or inactive
+      if (v.status === 'maintenance' || v.status === 'inactive') return false;
+      // Can be either unassigned, or already assigned to THIS driver
+      const assignedToId = (v.assignedDriver?._id || v.assignedDriver)?.toString();
+      if (assignedToId && assignedToId !== selectedDriverForVehicle._id.toString()) {
+        return false;
+      }
+      return true;
+    });
+  }, [vehicles, selectedDriverForVehicle]);
 
   const filteredDrivers = useMemo(() => {
     return drivers.filter((d) => {
@@ -105,6 +161,11 @@ const DriverListPage = () => {
         if (clientObjId !== clientFilter) return false;
       }
 
+      if (branchFilter !== 'all') {
+        const branchObjId = d.branch?._id || d.branch;
+        if (branchObjId !== branchFilter) return false;
+      }
+
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         const fullName = `${d.firstName || ''} ${d.lastName || ''}`.toLowerCase();
@@ -117,10 +178,15 @@ const DriverListPage = () => {
       }
       return true;
     });
-  }, [drivers, statusFilter, clientFilter, searchQuery]);
+  }, [drivers, statusFilter, clientFilter, branchFilter, searchQuery]);
 
   const handleOpenCreateModal = () => {
     setEditingDriver(null);
+    const initialClientId = clients[0]?._id || '';
+    const matchingBranches = branches.filter(
+      (b) => (b.client?._id || b.client)?.toString() === initialClientId.toString()
+    );
+
     setFormData({
       firstName: '',
       lastName: '',
@@ -128,8 +194,8 @@ const DriverListPage = () => {
       licenseNumber: `DL-${Math.floor(10000000 + Math.random() * 90000000)}`,
       phone: '',
       email: '',
-      client: clients[0]?._id || '',
-      branch: branches[0]?._id || '',
+      client: initialClientId,
+      branch: matchingBranches[0]?._id || branches[0]?._id || '',
       status: 'available',
       availability: 'AVAILABLE',
     });
@@ -155,7 +221,12 @@ const DriverListPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.firstName.trim() || !formData.lastName.trim() || !formData.employeeId.trim() || !formData.licenseNumber.trim()) {
+    if (
+      !formData.firstName.trim() ||
+      !formData.lastName.trim() ||
+      !formData.employeeId.trim() ||
+      !formData.licenseNumber.trim()
+    ) {
       showError('Please fill in all required driver details');
       return;
     }
@@ -172,7 +243,7 @@ const DriverListPage = () => {
       setModalOpen(false);
       loadData();
     } catch (err) {
-      showError(err.message || 'Failed to save driver partner');
+      showError(err.response?.data?.message || err.message || 'Failed to save driver partner');
     } finally {
       setSubmitting(false);
     }
@@ -188,7 +259,7 @@ const DriverListPage = () => {
       setDriverToDelete(null);
       loadData();
     } catch (err) {
-      showError(err.message || 'Failed to delete driver');
+      showError(err.response?.data?.message || err.message || 'Failed to delete driver');
     } finally {
       setSubmitting(false);
     }
@@ -214,7 +285,7 @@ const DriverListPage = () => {
       setAssignModalOpen(false);
       loadData();
     } catch (err) {
-      showError(err.message || 'Failed to update vehicle assignment');
+      showError(err.response?.data?.message || err.message || 'Failed to update vehicle assignment');
     } finally {
       setSubmitting(false);
     }
@@ -246,6 +317,11 @@ const DriverListPage = () => {
     );
   };
 
+  const canManage =
+    activeRole === 'super_admin' ||
+    activeRole === 'client_admin' ||
+    activeRole === 'dispatcher';
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -253,7 +329,7 @@ const DriverListPage = () => {
         title="Driver Partners & Riders"
         subtitle="Manage fast food delivery riders, KYC licenses, shift availability, and assigned EV vehicles."
         actions={
-          activeRole !== 'driver' && (
+          canManage && (
             <Button
               variant="primary"
               leftIcon={<HiOutlinePlus className="w-5 h-5" />}
@@ -322,18 +398,36 @@ const DriverListPage = () => {
             </select>
 
             {/* Client Filter */}
-            <select
-              value={clientFilter}
-              onChange={(e) => setClientFilter(e.target.value)}
-              className="bg-[#1A1A1A] border border-[#2E2E2E] rounded-lg px-3 py-2 text-sm text-slate-200 outline-none focus:border-amber-500 transition-colors"
-            >
-              <option value="all">All Restaurant Clients</option>
-              {clients.map((c) => (
-                <option key={c._id} value={c._id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
+            {activeRole === 'super_admin' && (
+              <select
+                value={clientFilter}
+                onChange={(e) => setClientFilter(e.target.value)}
+                className="bg-[#1A1A1A] border border-[#2E2E2E] rounded-lg px-3 py-2 text-sm text-slate-200 outline-none focus:border-amber-500 transition-colors"
+              >
+                <option value="all">All Restaurant Clients</option>
+                {clients.map((c) => (
+                  <option key={c._id} value={c._id}>
+                    {c.companyName || c.name}
+                  </option>
+                ))}
+              </select>
+            )}
+
+            {/* Branch Filter */}
+            {activeRole === 'super_admin' && (
+              <select
+                value={branchFilter}
+                onChange={(e) => setBranchFilter(e.target.value)}
+                className="bg-[#1A1A1A] border border-[#2E2E2E] rounded-lg px-3 py-2 text-sm text-slate-200 outline-none focus:border-amber-500 transition-colors"
+              >
+                <option value="all">All Branches</option>
+                {branches.map((b) => (
+                  <option key={b._id} value={b._id}>
+                    {b.branchName || b.name}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
         </div>
       </Card>
@@ -371,10 +465,10 @@ const DriverListPage = () => {
                 </tr>
               ) : (
                 filteredDrivers.map((driver) => {
-                  const clientName = driver.client?.name || 'FastFleet Operations';
-                  const branchName = driver.branch?.name || 'Main Hub';
+                  const clientName = driver.client?.companyName || driver.client?.name || 'Domino\'s';
+                  const branchName = driver.branch?.branchName || driver.branch?.name || 'Indiranagar Hub';
                   const assignedVeh = driver.assignedVehicle?.vehicleNumber
-                    ? `${driver.assignedVehicle.vehicleNumber} (${driver.assignedVehicle.brand || 'EV'})`
+                    ? `${driver.assignedVehicle.vehicleNumber} (${driver.assignedVehicle.brand || driver.assignedVehicle.vehicleType || 'EV'})`
                     : null;
 
                   return (
@@ -439,31 +533,45 @@ const DriverListPage = () => {
                       {/* Actions */}
                       <td className="py-3.5 px-4 text-right">
                         <div className="flex items-center justify-end gap-1.5">
+                          {/* View Details Button */}
                           <button
-                            onClick={() => handleOpenAssignVehicle(driver)}
-                            title="Assign / Change Vehicle"
-                            className="p-1.5 rounded-lg text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 transition-colors"
+                            onClick={() => {
+                              setSelectedDriver(driver);
+                              setDetailsModalOpen(true);
+                            }}
+                            title="View Rider Profile"
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-amber-400 hover:bg-[#242424] transition-colors"
                           >
-                            <HiOutlineTruck className="w-4 h-4" />
+                            <HiOutlineEye className="w-4 h-4" />
                           </button>
-                          <button
-                            onClick={() => handleOpenEditModal(driver)}
-                            title="Edit Rider Details"
-                            className="p-1.5 rounded-lg text-[#A3A3A3] hover:text-white hover:bg-[#242424] transition-colors"
-                          >
-                            <HiOutlinePencilSquare className="w-4 h-4" />
-                          </button>
-                          {activeRole === 'super_admin' && (
-                            <button
-                              onClick={() => {
-                                setDriverToDelete(driver);
-                                setDeleteConfirmOpen(true);
-                              }}
-                              title="Delete Rider"
-                              className="p-1.5 rounded-lg text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-colors"
-                            >
-                              <HiOutlineTrash className="w-4 h-4" />
-                            </button>
+
+                          {canManage && (
+                            <>
+                              <button
+                                onClick={() => handleOpenAssignVehicle(driver)}
+                                title="Assign / Change Vehicle"
+                                className="p-1.5 rounded-lg text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 transition-colors"
+                              >
+                                <HiOutlineTruck className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleOpenEditModal(driver)}
+                                title="Edit Rider Details"
+                                className="p-1.5 rounded-lg text-[#A3A3A3] hover:text-white hover:bg-[#242424] transition-colors"
+                              >
+                                <HiOutlinePencilSquare className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setDriverToDelete(driver);
+                                  setDeleteConfirmOpen(true);
+                                }}
+                                title="Delete Rider"
+                                className="p-1.5 rounded-lg text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-colors"
+                              >
+                                <HiOutlineTrash className="w-4 h-4" />
+                              </button>
+                            </>
                           )}
                         </div>
                       </td>
@@ -475,6 +583,89 @@ const DriverListPage = () => {
           </table>
         </div>
       </Card>
+
+      {/* View Driver Details Modal */}
+      <Modal
+        isOpen={detailsModalOpen}
+        onClose={() => setDetailsModalOpen(false)}
+        title={`Driver Partner: ${selectedDriver?.firstName || ''} ${selectedDriver?.lastName || ''}`}
+        size="md"
+      >
+        {selectedDriver && (
+          <div className="space-y-4 pt-2">
+            <div className="flex items-center justify-between pb-3 border-b border-[#2E2E2E]">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-amber-500/15 border border-amber-500/20 text-amber-400 font-bold flex items-center justify-center text-base">
+                  {selectedDriver.firstName?.[0]}
+                  {selectedDriver.lastName?.[0]}
+                </div>
+                <div>
+                  <p className="text-base font-bold text-white">
+                    {selectedDriver.firstName} {selectedDriver.lastName}
+                  </p>
+                  <p className="text-xs text-amber-500/90 font-mono">
+                    {selectedDriver.employeeId}
+                  </p>
+                </div>
+              </div>
+              <div>{getStatusBadge(selectedDriver.availability, selectedDriver.status)}</div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              <div className="bg-[#1A1A1A] p-3 rounded-lg border border-[#2E2E2E]">
+                <span className="text-[#A3A3A3] block uppercase tracking-wider text-2xs mb-1">License Number</span>
+                <span className="font-mono font-bold text-white">{selectedDriver.licenseNumber}</span>
+              </div>
+              <div className="bg-[#1A1A1A] p-3 rounded-lg border border-[#2E2E2E]">
+                <span className="text-[#A3A3A3] block uppercase tracking-wider text-2xs mb-1">Phone Number</span>
+                <span className="font-mono text-white">{selectedDriver.phone || 'N/A'}</span>
+              </div>
+              <div className="bg-[#1A1A1A] p-3 rounded-lg border border-[#2E2E2E]">
+                <span className="text-[#A3A3A3] block uppercase tracking-wider text-2xs mb-1">Email Address</span>
+                <span className="text-white truncate block">{selectedDriver.email || 'N/A'}</span>
+              </div>
+              <div className="bg-[#1A1A1A] p-3 rounded-lg border border-[#2E2E2E]">
+                <span className="text-[#A3A3A3] block uppercase tracking-wider text-2xs mb-1">Restaurant Client</span>
+                <span className="font-semibold text-white">
+                  {selectedDriver.client?.companyName || selectedDriver.client?.name || 'Domino\'s'}
+                </span>
+              </div>
+              <div className="bg-[#1A1A1A] p-3 rounded-lg border border-[#2E2E2E]">
+                <span className="text-[#A3A3A3] block uppercase tracking-wider text-2xs mb-1">Branch Hub</span>
+                <span className="font-semibold text-white">
+                  {selectedDriver.branch?.branchName || selectedDriver.branch?.name || 'Indiranagar Hub'}
+                </span>
+              </div>
+              <div className="bg-[#1A1A1A] p-3 rounded-lg border border-[#2E2E2E]">
+                <span className="text-[#A3A3A3] block uppercase tracking-wider text-2xs mb-1">Assigned Vehicle</span>
+                <span className="font-semibold text-amber-400">
+                  {selectedDriver.assignedVehicle?.vehicleNumber
+                    ? `${selectedDriver.assignedVehicle.vehicleNumber} (${selectedDriver.assignedVehicle.brand || 'EV'})`
+                    : 'None Assigned'}
+                </span>
+              </div>
+              {selectedDriver.experience !== undefined && (
+                <div className="bg-[#1A1A1A] p-3 rounded-lg border border-[#2E2E2E]">
+                  <span className="text-[#A3A3A3] block uppercase tracking-wider text-2xs mb-1">Experience</span>
+                  <span className="text-white">{selectedDriver.experience} years</span>
+                </div>
+              )}
+              {selectedDriver.rating && (
+                <div className="bg-[#1A1A1A] p-3 rounded-lg border border-[#2E2E2E]">
+                  <span className="text-[#A3A3A3] block uppercase tracking-wider text-2xs mb-1">Rider Rating</span>
+                  <span className="font-bold text-amber-400">★ {selectedDriver.rating} / 5.0</span>
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end pt-3 border-t border-[#2E2E2E]">
+              <Button variant="outline" size="sm" onClick={() => setDetailsModalOpen(false)}>
+                Close
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
 
       {/* Add / Edit Driver Modal */}
       <Modal
@@ -524,22 +715,22 @@ const DriverListPage = () => {
                 required
                 value={formData.employeeId}
                 onChange={(e) => setFormData({ ...formData, employeeId: e.target.value.toUpperCase() })}
-                className="w-full bg-[#1A1A1A] border border-[#2E2E2E] rounded-lg px-3 py-2 text-sm text-white font-mono outline-none focus:border-amber-500"
-                placeholder="e.g. DRV-105"
+                className="w-full bg-[#1A1A1A] border border-[#2E2E2E] rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-amber-500 font-mono"
+                placeholder="e.g. DRV-1001"
               />
             </div>
 
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-[#A3A3A3] mb-1">
-                Driving License Number *
+                License Number *
               </label>
               <input
                 type="text"
                 required
                 value={formData.licenseNumber}
                 onChange={(e) => setFormData({ ...formData, licenseNumber: e.target.value.toUpperCase() })}
-                className="w-full bg-[#1A1A1A] border border-[#2E2E2E] rounded-lg px-3 py-2 text-sm text-white font-mono outline-none focus:border-amber-500"
-                placeholder="e.g. MH-12-20230045"
+                className="w-full bg-[#1A1A1A] border border-[#2E2E2E] rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-amber-500 font-mono"
+                placeholder="e.g. KA01-20230001"
               />
             </div>
           </div>
@@ -580,12 +771,13 @@ const DriverListPage = () => {
               <select
                 required
                 value={formData.client}
-                onChange={(e) => setFormData({ ...formData, client: e.target.value })}
-                className="w-full bg-[#1A1A1A] border border-[#2E2E2E] rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-amber-500"
+                onChange={(e) => handleClientChange(e.target.value)}
+                disabled={activeRole === 'client_admin'}
+                className="w-full bg-[#1A1A1A] border border-[#2E2E2E] rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-amber-500 disabled:opacity-75"
               >
                 {clients.map((c) => (
                   <option key={c._id} value={c._id}>
-                    {c.name}
+                    {c.companyName || c.name}
                   </option>
                 ))}
               </select>
@@ -601,11 +793,15 @@ const DriverListPage = () => {
                 onChange={(e) => setFormData({ ...formData, branch: e.target.value })}
                 className="w-full bg-[#1A1A1A] border border-[#2E2E2E] rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-amber-500"
               >
-                {branches.map((b) => (
-                  <option key={b._id} value={b._id}>
-                    {b.name}
-                  </option>
-                ))}
+                {formBranches.length === 0 ? (
+                  <option value="">No branches for this client</option>
+                ) : (
+                  formBranches.map((b) => (
+                    <option key={b._id} value={b._id}>
+                      {b.branchName || b.name}
+                    </option>
+                  ))
+                )}
               </select>
             </div>
           </div>
@@ -636,9 +832,10 @@ const DriverListPage = () => {
                 className="w-full bg-[#1A1A1A] border border-[#2E2E2E] rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-amber-500"
               >
                 <option value="available">Available</option>
-                <option value="on-duty">On Duty</option>
-                <option value="off-duty">Off Duty</option>
+                <option value="on_duty">On Duty</option>
+                <option value="on_leave">On Leave</option>
                 <option value="suspended">Suspended</option>
+                <option value="inactive">Inactive</option>
               </select>
             </div>
           </div>
@@ -671,7 +868,7 @@ const DriverListPage = () => {
       >
         <div className="space-y-4 pt-2">
           <p className="text-sm text-[#A3A3A3]">
-            Select a fleet bike, scooter, or EV to assign to this rider for food delivery dispatches.
+            Select a fleet bike, scooter, or EV to assign to this rider for food delivery dispatches. Only available vehicles from the same restaurant client are listed.
           </p>
 
           <div>
@@ -684,7 +881,7 @@ const DriverListPage = () => {
               className="w-full bg-[#1A1A1A] border border-[#2E2E2E] rounded-lg px-3 py-2.5 text-sm text-white outline-none focus:border-amber-500"
             >
               <option value="">-- No Vehicle Assigned (Unassign) --</option>
-              {vehicles.map((v) => (
+              {assignableVehicles.map((v) => (
                 <option key={v._id} value={v._id}>
                   {v.vehicleNumber} – {v.brand} {v.model} ({v.vehicleType?.replace('_', ' ') || 'Bike'}) [{v.availability}]
                 </option>

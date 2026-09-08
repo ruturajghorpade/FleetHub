@@ -60,6 +60,14 @@ export const driverService = {
     const res = await api.patch(`/drivers/${id}/remove-vehicle`);
     return res.data?.driver;
   },
+
+  /**
+   * Get available drivers for delivery assignment
+   */
+  getAvailableDrivers: async (params = {}) => {
+    const res = await api.get('/drivers/available', { params });
+    return res.data?.drivers || [];
+  },
 };
 
 export default driverService;

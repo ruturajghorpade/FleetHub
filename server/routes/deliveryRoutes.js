@@ -30,18 +30,18 @@ router.post(
   deliveryController.createDelivery
 );
 
-// POST /api/v1/deliveries/:id/assign — Dispatcher & Super Admin manual assign
+// POST /api/v1/deliveries/:id/assign — Super Admin, Client Admin, Dispatcher manual assign
 router.post(
   '/:id/assign',
-  authorize(ROLES.SUPER_ADMIN, ROLES.DISPATCHER),
+  authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.DISPATCHER),
   validateAssignDelivery,
   deliveryController.manualAssignDelivery
 );
 
-// POST /api/v1/deliveries/:id/auto-assign — Dispatcher & Super Admin auto assign
+// POST /api/v1/deliveries/:id/auto-assign — Super Admin, Client Admin, Dispatcher auto assign
 router.post(
   '/:id/auto-assign',
-  authorize(ROLES.SUPER_ADMIN, ROLES.DISPATCHER),
+  authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.DISPATCHER),
   deliveryController.autoAssignDelivery
 );
 
