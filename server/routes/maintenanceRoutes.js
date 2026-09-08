@@ -1,4 +1,4 @@
-// FleetHub – Maintenance Routes
+// FleetHub – Maintenance Routes (Food Delivery Fleet Logistics)
 import express from 'express';
 import {
   getMaintenanceRecords,
@@ -6,6 +6,9 @@ import {
   createMaintenanceRecord,
   updateMaintenanceRecord,
   deleteMaintenanceRecord,
+  startMaintenanceRecord,
+  completeMaintenanceRecord,
+  cancelMaintenanceRecord,
 } from '../controllers/maintenanceController.js';
 import { protect } from '../middleware/authMiddleware.js';
 import { authorize } from '../middleware/roleMiddleware.js';
@@ -21,6 +24,27 @@ router
   .post(
     authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.DISPATCHER),
     createMaintenanceRecord
+  );
+
+router
+  .route('/:id/start')
+  .patch(
+    authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.DISPATCHER),
+    startMaintenanceRecord
+  );
+
+router
+  .route('/:id/complete')
+  .patch(
+    authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.DISPATCHER),
+    completeMaintenanceRecord
+  );
+
+router
+  .route('/:id/cancel')
+  .patch(
+    authorize(ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.DISPATCHER),
+    cancelMaintenanceRecord
   );
 
 router

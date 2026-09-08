@@ -82,7 +82,7 @@ export const appRoutes = [
     element: MaintenanceListPage,
     layout: 'main',
     auth: true,
-    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.DISPATCHER],
+    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.DISPATCHER],
     title: 'Vehicle Maintenance',
   },
   {

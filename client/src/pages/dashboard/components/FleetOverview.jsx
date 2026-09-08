@@ -3,7 +3,15 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recha
 import { FLEET_STATUS_DATA } from '@/data/mockData';
 import Card from '@/components/common/Card';
 
-const FleetOverview = () => {
+const FleetOverview = ({ stats }) => {
+  const chartData = stats?.fleetAvailability
+    ? [
+        { name: 'Available Bikes', value: stats.fleetAvailability.available ?? 0, color: '#22C55E' },
+        { name: 'On Delivery', value: stats.fleetAvailability.onDelivery ?? 0, color: '#3B82F6' },
+        { name: 'Maintenance', value: stats.fleetAvailability.maintenance ?? 0, color: '#F59E0B' },
+      ]
+    : FLEET_STATUS_DATA;
+
   const CustomTooltip = ({ active, payload }) => {
     if (!active || !payload?.[0]) return null;
     const { name, value } = payload[0];
@@ -40,7 +48,7 @@ const FleetOverview = () => {
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
-              data={FLEET_STATUS_DATA}
+              data={chartData}
               cx="50%"
               cy="45%"
               innerRadius={62}
@@ -49,7 +57,7 @@ const FleetOverview = () => {
               dataKey="value"
               stroke="none"
             >
-              {FLEET_STATUS_DATA.map((entry, index) => (
+              {chartData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />
               ))}
             </Pie>

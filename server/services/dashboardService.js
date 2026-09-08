@@ -18,12 +18,14 @@ export const getDashboardStats = async (user) => {
   const clientFilter = {};
   const vehicleFilter = {};
   const driverFilter = {};
+  const maintenanceFilter = {};
 
   if (isClientAdmin && user.client) {
     deliveryFilter.client = user.client;
     clientFilter._id = user.client;
     vehicleFilter.client = user.client;
     driverFilter.client = user.client;
+    maintenanceFilter.client = user.client;
   }
 
   // Today date boundaries (UTC)
@@ -73,7 +75,7 @@ export const getDashboardStats = async (user) => {
     Driver.countDocuments({ ...driverFilter, availability: { $in: ['AVAILABLE', 'available'] } }),
     Driver.countDocuments({ ...driverFilter, availability: { $in: ['BUSY', 'busy'] } }),
     Driver.countDocuments({ ...driverFilter, availability: { $in: ['OFFLINE', 'offline'] } }),
-    Maintenance.countDocuments({ status: { $in: ['scheduled', 'in_progress'] } }),
+    Maintenance.countDocuments({ ...maintenanceFilter, status: { $in: ['scheduled', 'in_progress'] } }),
     Delivery.find(deliveryFilter)
       .sort({ createdAt: -1 })
       .limit(8)

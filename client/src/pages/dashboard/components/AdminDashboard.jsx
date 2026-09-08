@@ -147,7 +147,7 @@ const AdminDashboard = () => {
           <RevenueChart />
         </div>
         <div>
-          <FleetOverview />
+          <FleetOverview stats={stats} />
         </div>
       </section>
 

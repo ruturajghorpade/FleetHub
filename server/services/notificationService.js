@@ -228,14 +228,34 @@ export const notifyOnStatusUpdate = async (delivery, status, updatedByName = 'Sy
 export const notifyOnMaintenance = async (maintenance, alertType = 'SCHEDULED') => {
   const vehicleNumber = maintenance.vehicle?.vehicleNumber || 'Fleet Vehicle';
   const clientId = maintenance.client?._id || maintenance.client;
+  const branchId = maintenance.branch?._id || maintenance.branch;
 
-  const title = alertType === 'COMPLETED'
-    ? 'Vehicle Maintenance Completed'
-    : 'Vehicle Maintenance Scheduled';
+  let title = 'Vehicle Maintenance Alert';
+  let message = `Vehicle ${vehicleNumber} maintenance updated.`;
 
-  const message = alertType === 'COMPLETED'
-    ? `Scheduled maintenance for vehicle ${vehicleNumber} has been completed.`
-    : `Vehicle ${vehicleNumber} requires maintenance: ${maintenance.title || 'Service Inspection'}.`;
+  switch (alertType.toUpperCase()) {
+    case 'STARTED':
+      title = 'Vehicle Maintenance Started';
+      message = `Maintenance started on vehicle ${vehicleNumber} (${maintenance.title}). The vehicle is currently unavailable for delivery assignments.`;
+      break;
+    case 'COMPLETED':
+      title = 'Vehicle Maintenance Completed';
+      message = `Maintenance on vehicle ${vehicleNumber} (${maintenance.title}) is completed. The vehicle is now restored to available status.`;
+      break;
+    case 'CANCELLED':
+      title = 'Vehicle Maintenance Cancelled';
+      message = `Scheduled maintenance for vehicle ${vehicleNumber} (${maintenance.title}) has been cancelled.`;
+      break;
+    case 'OVERDUE':
+      title = 'Vehicle Maintenance Overdue';
+      message = `Scheduled maintenance for vehicle ${vehicleNumber} is overdue! Please inspect and begin servicing immediately.`;
+      break;
+    case 'SCHEDULED':
+    default:
+      title = 'Vehicle Maintenance Scheduled';
+      message = `Vehicle ${vehicleNumber} has maintenance scheduled for ${maintenance.title || 'Service Inspection'}.`;
+      break;
+  }
 
   // Notify Dispatcher / Fleet Operations
   await createNotification({
@@ -244,6 +264,7 @@ export const notifyOnMaintenance = async (maintenance, alertType = 'SCHEDULED') 
     title,
     message,
     client: clientId,
+    branch: branchId,
     relatedEntity: 'maintenance',
     relatedEntityId: maintenance._id,
   });
@@ -256,6 +277,7 @@ export const notifyOnMaintenance = async (maintenance, alertType = 'SCHEDULED') 
       title,
       message,
       client: clientId,
+      branch: branchId,
       relatedEntity: 'maintenance',
       relatedEntityId: maintenance._id,
     });

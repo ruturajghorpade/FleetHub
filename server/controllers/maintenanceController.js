@@ -1,126 +1,68 @@
-// FleetHub – Maintenance Controller
-import Maintenance from '../models/Maintenance.js';
+// FleetHub – Maintenance Controller (Food Delivery Fleet Logistics)
+import * as maintenanceService from '../services/maintenanceService.js';
 import ApiResponse from '../utils/apiResponse.js';
-import ApiError from '../utils/apiError.js';
 import asyncHandler from '../utils/asyncHandler.js';
 
 // GET /api/v1/maintenance
 export const getMaintenanceRecords = asyncHandler(async (req, res) => {
-  const { vehicle, status, page = 1, limit = 20 } = req.query;
-  const filter = {};
-
-  if (vehicle) filter.vehicle = vehicle;
-  if (status) filter.status = status.toLowerCase();
-
-  const skip = (parseInt(page, 10) - 1) * parseInt(limit, 10);
-  const total = await Maintenance.countDocuments(filter);
-
-  const records = await Maintenance.find(filter)
-    .sort({ maintenanceDate: -1 })
-    .skip(skip)
-    .limit(parseInt(limit, 10))
-    .populate('vehicle', 'vehicleNumber model vehicleType')
-    .populate('client', 'companyName');
-
-  return ApiResponse.ok(res, 'Maintenance records retrieved successfully', { records }, {
-    total,
-    page: parseInt(page, 10),
-    limit: parseInt(limit, 10),
-    totalPages: Math.ceil(total / limit),
-  });
+  const result = await maintenanceService.getMaintenanceRecords(req.query, req.user);
+  return ApiResponse.ok(
+    res,
+    'Maintenance records retrieved successfully',
+    {
+      records: result.records,
+      summary: result.summary,
+    },
+    result.pagination
+  );
 });
 
 // GET /api/v1/maintenance/:id
 export const getMaintenanceRecord = asyncHandler(async (req, res) => {
-  const record = await Maintenance.findById(req.params.id)
-    .populate('vehicle', 'vehicleNumber model vehicleType')
-    .populate('client', 'companyName');
-
-  if (!record) {
-    throw ApiError.notFound('Maintenance record not found');
-  }
-
+  const record = await maintenanceService.getMaintenanceRecordById(req.params.id, req.user);
   return ApiResponse.ok(res, 'Maintenance record retrieved successfully', { record });
 });
 
 // POST /api/v1/maintenance
 export const createMaintenanceRecord = asyncHandler(async (req, res) => {
-  const {
-    vehicle,
-    client,
-    maintenanceType,
-    title,
-    description,
-    cost,
-    status,
-    odometer,
-    serviceCenter,
-    performedBy,
-    maintenanceDate,
-    nextMaintenanceDate,
-  } = req.body;
-
-  if (!vehicle || !title) {
-    throw ApiError.badRequest('Vehicle and title are required');
-  }
-
-  const record = await Maintenance.create({
-    vehicle,
-    client: client || null,
-    maintenanceType: maintenanceType || 'routine',
-    title,
-    description,
-    cost: cost || 0,
-    status: status || 'scheduled',
-    odometer: odometer || 0,
-    serviceCenter,
-    performedBy,
-    maintenanceDate: maintenanceDate || Date.now(),
-    nextMaintenanceDate,
-    createdBy: req.user._id,
-  });
-
-  const populated = await Maintenance.findById(record._id)
-    .populate('vehicle', 'vehicleNumber model vehicleType')
-    .populate('client', 'companyName');
-
-  return ApiResponse.created(res, 'Maintenance record created successfully', { record: populated });
+  const record = await maintenanceService.createMaintenance(req.body, req.user);
+  return ApiResponse.created(res, 'Maintenance record created successfully', { record });
 });
 
 // PUT /api/v1/maintenance/:id
 export const updateMaintenanceRecord = asyncHandler(async (req, res) => {
-  const record = await Maintenance.findById(req.params.id);
+  const record = await maintenanceService.updateMaintenance(req.params.id, req.body, req.user);
+  return ApiResponse.ok(res, 'Maintenance record updated successfully', { record });
+});
 
-  if (!record) {
-    throw ApiError.notFound('Maintenance record not found');
-  }
+// PATCH /api/v1/maintenance/:id/start
+export const startMaintenanceRecord = asyncHandler(async (req, res) => {
+  const record = await maintenanceService.startMaintenance(req.params.id, req.user);
+  return ApiResponse.ok(
+    res,
+    'Maintenance started successfully. Vehicle is now marked under maintenance.',
+    { record }
+  );
+});
 
-  Object.assign(record, req.body);
+// PATCH /api/v1/maintenance/:id/complete
+export const completeMaintenanceRecord = asyncHandler(async (req, res) => {
+  const record = await maintenanceService.completeMaintenance(req.params.id, req.body, req.user);
+  return ApiResponse.ok(
+    res,
+    'Maintenance completed successfully. Vehicle is restored to available fleet.',
+    { record }
+  );
+});
 
-  if (req.body.status === 'completed' && !record.completedDate) {
-    record.completedDate = new Date();
-  }
-
-  await record.save();
-
-  const updated = await Maintenance.findById(record._id)
-    .populate('vehicle', 'vehicleNumber model vehicleType')
-    .populate('client', 'companyName');
-
-  return ApiResponse.ok(res, 'Maintenance record updated successfully', { record: updated });
+// PATCH /api/v1/maintenance/:id/cancel
+export const cancelMaintenanceRecord = asyncHandler(async (req, res) => {
+  const record = await maintenanceService.cancelMaintenance(req.params.id, req.body, req.user);
+  return ApiResponse.ok(res, 'Maintenance record cancelled successfully', { record });
 });
 
 // DELETE /api/v1/maintenance/:id
 export const deleteMaintenanceRecord = asyncHandler(async (req, res) => {
-  const record = await Maintenance.findById(req.params.id);
-
-  if (!record) {
-    throw ApiError.notFound('Maintenance record not found');
-  }
-
-  record.isDeleted = true;
-  record.deletedAt = new Date();
-  await record.save();
-
-  return ApiResponse.ok(res, 'Maintenance record deleted successfully');
+  const result = await maintenanceService.deleteMaintenance(req.params.id, req.user);
+  return ApiResponse.ok(res, 'Maintenance record deleted successfully', result);
 });

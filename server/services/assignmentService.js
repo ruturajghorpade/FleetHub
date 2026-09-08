@@ -2,6 +2,7 @@
 import Delivery from '../models/Delivery.js';
 import Driver from '../models/Driver.js';
 import Vehicle from '../models/Vehicle.js';
+import Maintenance from '../models/Maintenance.js';
 import ApiError from '../utils/apiError.js';
 import { notifyDriverOnAssignment } from './notificationService.js';
 
@@ -48,6 +49,13 @@ export const autoAssignDelivery = async (deliveryId, user) => {
   const busyDriverIds = activeDeliveries.map((d) => d.assignedDriver).filter(Boolean);
   const busyVehicleIds = activeDeliveries.map((d) => d.assignedVehicle).filter(Boolean);
 
+  // Also query vehicles currently under active maintenance
+  const activeMaintenanceVehicles = await Maintenance.find({
+    status: { $in: ['in_progress', 'IN_PROGRESS'] },
+    isDeleted: { $ne: true },
+  }).select('vehicle');
+  const maintenanceVehicleIds = activeMaintenanceVehicles.map((m) => m.vehicle).filter(Boolean);
+
   // 1. Query candidate driver: must belong to the delivery's client
   const driverFilter = {
     client: delivery.client,
@@ -75,7 +83,7 @@ export const autoAssignDelivery = async (deliveryId, user) => {
   // 2. Query candidate vehicle: must belong to the delivery's client and be a bike/scooter
   const vehicleFilter = {
     client: delivery.client,
-    _id: { $nin: busyVehicleIds },
+    _id: { $nin: [...busyVehicleIds, ...maintenanceVehicleIds] },
     isDeleted: { $ne: true },
     status: { $nin: ['maintenance', 'retired', 'inactive'] },
     availability: { $in: ['AVAILABLE', 'available'] },
@@ -202,6 +210,18 @@ export const manualAssignDelivery = async (deliveryId, { driverId, vehicleId }, 
 
   if (vehicle.status === 'maintenance' || vehicle.availability === 'MAINTENANCE') {
     throw ApiError.badRequest(`Vehicle ${vehicle.vehicleNumber} is under maintenance and cannot be assigned`);
+  }
+
+  // Verify vehicle is not currently under an active in-progress maintenance record
+  const activeMaintenance = await Maintenance.findOne({
+    vehicle: vehicle._id,
+    status: { $in: ['in_progress', 'IN_PROGRESS'] },
+    isDeleted: { $ne: true },
+  });
+  if (activeMaintenance) {
+    throw ApiError.badRequest(
+      `Vehicle ${vehicle.vehicleNumber} is currently under maintenance and cannot be assigned to deliveries`
+    );
   }
 
   // Verify Vehicle Client Ownership

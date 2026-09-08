@@ -16,13 +16,17 @@ const maintenanceSchema = new mongoose.Schema(
       default: null,
     },
 
+    branch: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Branch',
+      default: null,
+    },
+
     maintenanceType: {
       type: String,
-      enum: {
-        values: Object.values(MAINTENANCE_TYPES),
-        message: '{VALUE} is not a valid maintenance type',
-      },
-      default: MAINTENANCE_TYPES.ROUTINE,
+      default: 'routine',
+      trim: true,
+      lowercase: true,
     },
 
     title: {
@@ -67,6 +71,12 @@ const maintenanceSchema = new mongoose.Schema(
       default: null,
     },
 
+    serviceProvider: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+
     performedBy: {
       type: String,
       trim: true,
@@ -78,6 +88,16 @@ const maintenanceSchema = new mongoose.Schema(
       default: Date.now,
     },
 
+    scheduledDate: {
+      type: Date,
+      default: Date.now,
+    },
+
+    startedDate: {
+      type: Date,
+      default: null,
+    },
+
     completedDate: {
       type: Date,
       default: null,
@@ -85,6 +105,20 @@ const maintenanceSchema = new mongoose.Schema(
 
     nextMaintenanceDate: {
       type: Date,
+      default: null,
+    },
+
+    notes: {
+      type: String,
+      trim: true,
+      maxlength: [1000, 'Notes must not exceed 1000 characters'],
+      default: null,
+    },
+
+    cancellationReason: {
+      type: String,
+      trim: true,
+      maxlength: [500, 'Cancellation reason must not exceed 500 characters'],
       default: null,
     },
 
@@ -113,6 +147,8 @@ const maintenanceSchema = new mongoose.Schema(
         delete ret.__v;
         delete ret.isDeleted;
         delete ret.deletedAt;
+        if (!ret.scheduledDate && ret.maintenanceDate) ret.scheduledDate = ret.maintenanceDate;
+        if (!ret.serviceProvider && ret.serviceCenter) ret.serviceProvider = ret.serviceCenter;
         return ret;
       },
     },
@@ -121,8 +157,12 @@ const maintenanceSchema = new mongoose.Schema(
 
 maintenanceSchema.index({ vehicle: 1 });
 maintenanceSchema.index({ client: 1 });
+maintenanceSchema.index({ branch: 1 });
 maintenanceSchema.index({ status: 1 });
 maintenanceSchema.index({ maintenanceDate: -1 });
+maintenanceSchema.index({ scheduledDate: -1 });
+maintenanceSchema.index({ client: 1, branch: 1, status: 1 });
+maintenanceSchema.index({ vehicle: 1, status: 1 });
 
 maintenanceSchema.pre(/^find/, function (next) {
   if (this.getFilter().isDeleted === undefined) {
