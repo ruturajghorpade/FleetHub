@@ -19,6 +19,16 @@ router.use(protect);
 // GET /api/v1/deliveries — All authenticated roles
 router.get('/', deliveryController.getDeliveries);
 
+// GET /api/v1/deliveries/my-deliveries — Driver's assigned deliveries
+router.get(
+  '/my-deliveries',
+  authorize(ROLES.DRIVER, ROLES.SUPER_ADMIN, ROLES.DISPATCHER),
+  deliveryController.getMyDeliveries
+);
+
+// GET /api/v1/deliveries/:id/history — Delivery status tracking timeline & history
+router.get('/:id/history', deliveryController.getDeliveryHistory);
+
 // GET /api/v1/deliveries/:id
 router.get('/:id', deliveryController.getDelivery);
 

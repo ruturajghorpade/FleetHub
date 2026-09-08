@@ -59,6 +59,24 @@ export const notifyOnCancellation = async (delivery, cancelledByName = 'Client')
   }
 };
 
+export const notifyOnStatusUpdate = async (delivery, status, updatedByName = 'System') => {
+  const statusLabels = {
+    picked_up: 'Picked Up',
+    out_for_delivery: 'Out for Delivery',
+    delivered: 'Delivered',
+  };
+  const label = statusLabels[status] || status.toUpperCase();
+
+  // Notify Dispatcher
+  await createNotification({
+    targetRole: 'dispatcher',
+    type: 'STATUS_UPDATE',
+    title: `Order #${delivery.orderId} ${label}`,
+    message: `Delivery #${delivery.orderId} was updated to ${label} by ${updatedByName}.`,
+    delivery: delivery._id,
+  });
+};
+
 export const getNotificationsForUser = async (user) => {
   const query = {
     $or: [

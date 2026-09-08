@@ -10,10 +10,22 @@ export const getDeliveries = asyncHandler(async (req, res) => {
   return ApiResponse.ok(res, 'Deliveries retrieved successfully', { deliveries: result.deliveries }, result.pagination);
 });
 
+// GET /api/v1/deliveries/my-deliveries (for assigned drivers)
+export const getMyDeliveries = asyncHandler(async (req, res) => {
+  const result = await deliveryService.getMyDeliveries(req.query, req.user);
+  return ApiResponse.ok(res, 'My deliveries retrieved successfully', { deliveries: result.deliveries }, result.pagination);
+});
+
 // GET /api/v1/deliveries/:id
 export const getDelivery = asyncHandler(async (req, res) => {
   const delivery = await deliveryService.getDeliveryById(req.params.id, req.user);
   return ApiResponse.ok(res, 'Delivery retrieved successfully', { delivery });
+});
+
+// GET /api/v1/deliveries/:id/history
+export const getDeliveryHistory = asyncHandler(async (req, res) => {
+  const history = await deliveryService.getDeliveryHistory(req.params.id, req.user);
+  return ApiResponse.ok(res, 'Delivery status history retrieved successfully', history);
 });
 
 // POST /api/v1/deliveries

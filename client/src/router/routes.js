@@ -6,6 +6,7 @@ import { ROLES } from '@/config/roleConfig';
 // Lazy-loaded pages
 const DashboardPage = lazy(() => import('@/pages/dashboard/DashboardPage'));
 const DeliveryListPage = lazy(() => import('@/pages/deliveries/DeliveryListPage'));
+const DeliveryDetailsPage = lazy(() => import('@/pages/deliveries/DeliveryDetailsPage'));
 const ReportsPage = lazy(() => import('@/pages/reports/ReportsPage'));
 const ClientListPage = lazy(() => import('@/pages/clients/ClientListPage'));
 const BranchListPage = lazy(() => import('@/pages/branches/BranchListPage'));
@@ -43,6 +44,14 @@ export const appRoutes = [
     auth: true,
     allowedRoles: [ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.DISPATCHER, ROLES.DRIVER],
     title: 'Food Deliveries',
+  },
+  {
+    path: ROUTES.DELIVERY_DETAILS,
+    element: DeliveryDetailsPage,
+    layout: 'main',
+    auth: true,
+    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.CLIENT_ADMIN, ROLES.DISPATCHER, ROLES.DRIVER],
+    title: 'Delivery Tracking & Details',
   },
   {
     path: ROUTES.ROUTES_LIST,

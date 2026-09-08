@@ -4,7 +4,7 @@ import Driver from '../models/Driver.js';
 import Vehicle from '../models/Vehicle.js';
 import Branch from '../models/Branch.js';
 import ApiError from '../utils/apiError.js';
-import { notifyOnCancellation } from './notificationService.js';
+import { notifyOnCancellation, notifyOnStatusUpdate } from './notificationService.js';
 
 /**
  * Generate a friendly orderId if none provided (e.g., ORD-782194)
@@ -70,7 +70,8 @@ export const createDelivery = async (data, user) => {
 
   return Delivery.findById(delivery._id)
     .populate('client', 'companyName phone address email businessType')
-    .populate('branch', 'branchName branchCode address phone');
+    .populate('branch', 'branchName branchCode address phone')
+    .populate('timeline.updatedBy', 'name role email');
 };
 
 /**
@@ -142,7 +143,9 @@ export const cancelDelivery = async (deliveryId, { reason }, user) => {
     .populate('client', 'companyName phone address')
     .populate('branch', 'branchName branchCode address phone')
     .populate('assignedDriver', 'firstName lastName phone')
-    .populate('assignedVehicle', 'vehicleNumber vehicleType');
+    .populate('assignedVehicle', 'vehicleNumber vehicleType')
+    .populate('timeline.updatedBy', 'name role email')
+    .populate('cancelledBy', 'name role email');
 };
 
 /**
@@ -224,11 +227,16 @@ export const updateDeliveryStatus = async (deliveryId, { status, note }, user) =
 
   await delivery.save();
 
+  // Notify Dispatcher and stakeholders
+  const updatedByName = user.name || (user.role === 'driver' ? 'Assigned Driver' : 'Staff');
+  await notifyOnStatusUpdate(delivery, normalizedStatus, updatedByName);
+
   return Delivery.findById(delivery._id)
     .populate('client', 'companyName phone address')
     .populate('branch', 'branchName branchCode address phone')
     .populate('assignedDriver', 'firstName lastName phone availability rating')
-    .populate('assignedVehicle', 'vehicleNumber vehicleType brand model availability');
+    .populate('assignedVehicle', 'vehicleNumber vehicleType brand model availability')
+    .populate('timeline.updatedBy', 'name role email');
 };
 
 /**
@@ -252,6 +260,11 @@ export const getDeliveries = async (query = {}, user) => {
     } else {
       filter.assignedDriver = null;
     }
+  }
+
+  // Role scoping: Branch check (if user has branch assigned, e.g. branch manager)
+  if (user.branch && !filter.branch && user.role !== 'super_admin') {
+    filter.branch = user.branch;
   }
 
   // Optional status filter
@@ -288,6 +301,7 @@ export const getDeliveries = async (query = {}, user) => {
       .populate('branch', 'branchName branchCode address phone')
       .populate('assignedDriver', 'firstName lastName phone availability rating')
       .populate('assignedVehicle', 'vehicleNumber vehicleType model availability')
+      .populate('timeline.updatedBy', 'name role email')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit),
@@ -314,6 +328,7 @@ export const getDeliveryById = async (deliveryId, user) => {
     .populate('branch', 'branchName branchCode address phone')
     .populate('assignedDriver', 'firstName lastName phone availability rating')
     .populate('assignedVehicle', 'vehicleNumber vehicleType brand model availability')
+    .populate('timeline.updatedBy', 'name role email')
     .populate('cancelledBy', 'name role email');
 
   if (!delivery) {
@@ -327,6 +342,15 @@ export const getDeliveryById = async (deliveryId, user) => {
     }
   }
 
+  // Branch Manager / Branch scoping check
+  if (user.branch && delivery.branch && user.role !== 'super_admin') {
+    const deliveryBranchId = delivery.branch?._id ? delivery.branch._id.toString() : delivery.branch.toString();
+    const userBranchId = user.branch?._id ? user.branch._id.toString() : user.branch.toString();
+    if (deliveryBranchId !== userBranchId) {
+      throw ApiError.forbidden('You are not authorized to view deliveries for this branch');
+    }
+  }
+
   // Driver access check
   if (user.role === 'driver') {
     const driverDoc = await Driver.findOne({ user: user._id });
@@ -336,4 +360,78 @@ export const getDeliveryById = async (deliveryId, user) => {
   }
 
   return delivery;
+};
+
+/**
+ * Get delivery status history & timeline.
+ */
+export const getDeliveryHistory = async (deliveryId, user) => {
+  const delivery = await getDeliveryById(deliveryId, user);
+
+  return {
+    deliveryId: delivery._id,
+    orderId: delivery.orderId,
+    trackingId: delivery.trackingId,
+    currentStatus: delivery.status,
+    history: delivery.timeline || [],
+    deliveredAt: delivery.deliveredAt,
+    cancelledAt: delivery.cancelledAt,
+    cancellationReason: delivery.cancellationReason,
+  };
+};
+
+/**
+ * Driver retrieves their assigned deliveries with status filtering, search and pagination.
+ */
+export const getMyDeliveries = async (query = {}, user) => {
+  const driverDoc = await Driver.findOne({ user: user._id });
+  if (!driverDoc) {
+    return {
+      deliveries: [],
+      pagination: { page: 1, limit: 25, total: 0, pages: 1 },
+    };
+  }
+
+  const filter = { assignedDriver: driverDoc._id };
+
+  // Status filter
+  if (query.status && query.status !== 'all') {
+    filter.status = query.status.toLowerCase();
+  }
+
+  // Search by orderId, customerName, or customerPhone
+  if (query.search) {
+    filter.$or = [
+      { orderId: { $regex: query.search, $options: 'i' } },
+      { customerName: { $regex: query.search, $options: 'i' } },
+      { customerPhone: { $regex: query.search, $options: 'i' } },
+    ];
+  }
+
+  const page = parseInt(query.page, 10) || 1;
+  const limit = parseInt(query.limit, 10) || 25;
+  const skip = (page - 1) * limit;
+
+  const [deliveries, total] = await Promise.all([
+    Delivery.find(filter)
+      .populate('client', 'companyName phone businessType address')
+      .populate('branch', 'branchName branchCode address phone')
+      .populate('assignedDriver', 'firstName lastName phone availability rating')
+      .populate('assignedVehicle', 'vehicleNumber vehicleType brand model availability')
+      .populate('timeline.updatedBy', 'name role email')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit),
+    Delivery.countDocuments(filter),
+  ]);
+
+  return {
+    deliveries,
+    pagination: {
+      page,
+      limit,
+      total,
+      pages: Math.ceil(total / limit) || 1,
+    },
+  };
 };

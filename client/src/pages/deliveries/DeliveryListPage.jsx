@@ -1,5 +1,6 @@
 // FleetHub – Delivery Operations Management Page (Food Delivery Logistics)
 import { useState, useMemo, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import {
   HiOutlinePlus,
   HiOutlineMagnifyingGlass,
@@ -86,7 +87,9 @@ const DeliveryListPage = () => {
   const loadDeliveries = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await deliveryService.getDeliveries({ limit: 200 });
+      const data = activeRole === 'driver'
+        ? await deliveryService.getMyDeliveries({ limit: 200 })
+        : await deliveryService.getDeliveries({ limit: 200 });
       setDeliveries(data?.deliveries || []);
     } catch (err) {
       console.error('Failed to load deliveries:', err);
@@ -95,11 +98,12 @@ const DeliveryListPage = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [activeRole]);
 
-  // Fetch Clients & Branches
+  // Fetch Clients & Branches (only for roles that manage or filter by client/branch)
   useEffect(() => {
     const fetchInitialData = async () => {
+      if (activeRole === 'driver') return;
       try {
         const [clientRes, branchRes] = await Promise.all([
           clientService.getClients({ limit: 100 }),
@@ -429,8 +433,12 @@ const DeliveryListPage = () => {
     <div className="space-y-6 animate-fade-in">
       {/* Page Header with Action Button via actions prop */}
       <PageHeader
-        title="Delivery Operations"
-        subtitle="Manage end-to-end food delivery requests, dispatch riders & vehicles, track live status, and monitor fleet utilization"
+        title={activeRole === 'driver' ? 'My Assigned Deliveries' : 'Delivery Operations'}
+        subtitle={
+          activeRole === 'driver'
+            ? 'View, track, and update your assigned food delivery orders in real time'
+            : 'Manage end-to-end food delivery requests, dispatch riders & vehicles, track live status, and monitor fleet utilization'
+        }
         actions={
           (activeRole === 'super_admin' || activeRole === 'client_admin') && (
             <Button variant="primary" size="md" onClick={() => setCreateModalOpen(true)}>
@@ -718,7 +726,7 @@ const DeliveryListPage = () => {
                             </button>
                           )}
 
-                          {/* Track Details */}
+                          {/* Quick Details Modal */}
                           <Button
                             variant="ghost"
                             size="xs"
@@ -726,11 +734,21 @@ const DeliveryListPage = () => {
                               setSelectedDelivery(delivery);
                               setTrackModalOpen(true);
                             }}
-                            title="View Details & Tracking"
+                            title="Quick Details"
                           >
-                            <HiOutlineEye className="w-4 h-4 text-amber-500" />
-                            Details
+                            <HiOutlineEye className="w-3.5 h-3.5 text-slate-400" />
+                            Preview
                           </Button>
+
+                          {/* Full Tracking Page Link */}
+                          <Link
+                            to={`/deliveries/${delivery._id}`}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 text-2xs font-bold border border-amber-500/30 transition-all"
+                            title="Open Live Tracking & Status History"
+                          >
+                            <HiOutlineEye className="w-3.5 h-3.5" />
+                            Track
+                          </Link>
 
                           {/* Pre-pickup Cancellation */}
                           {canCancel && (activeRole === 'client_admin' || activeRole === 'dispatcher' || activeRole === 'super_admin') && (
@@ -1200,7 +1218,14 @@ const DeliveryListPage = () => {
               </div>
             </div>
 
-            <div className="flex justify-end pt-2">
+            <div className="flex items-center justify-between pt-3 border-t border-slate-200 dark:border-[#262626]">
+              <Link
+                to={`/deliveries/${selectedDelivery._id}`}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-black text-xs font-bold transition-all shadow-sm"
+              >
+                <HiOutlineEye className="w-4 h-4 text-black" />
+                Open Full Tracking Page
+              </Link>
               <Button variant="secondary" size="sm" onClick={() => setTrackModalOpen(false)}>
                 Close
               </Button>

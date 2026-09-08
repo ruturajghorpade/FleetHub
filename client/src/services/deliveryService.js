@@ -22,6 +22,25 @@ export const deliveryService = {
   },
 
   /**
+   * Get delivery status history & timeline
+   */
+  getDeliveryHistory: async (id) => {
+    const res = await api.get(`/deliveries/${id}/history`);
+    return res.data;
+  },
+
+  /**
+   * Get driver's assigned deliveries (for driver portal / tab)
+   */
+  getMyDeliveries: async (params = {}) => {
+    const res = await api.get('/deliveries/my-deliveries', { params });
+    return {
+      deliveries: res.data?.deliveries || [],
+      pagination: res.meta || {},
+    };
+  },
+
+  /**
    * Create new delivery request (Client Admin or Super Admin)
    */
   createDelivery: async (deliveryData) => {
